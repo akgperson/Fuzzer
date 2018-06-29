@@ -99,6 +99,7 @@ for i in range(n_vars):
 
 n_push = 0
 n_pop = 0
+new_keys = []
 
 assertions = random.randrange(0, 100)
 while assertions > 0:
@@ -108,71 +109,82 @@ while assertions > 0:
             print('(pop 1)')
             n_pop += 1
 
-            if len(list(d.keys())) > n_keys:
-                new_keys = list(d.keys())[n_keys:]
-                for ones in new_keys:
-                    del d[ones]
+            n_keys = new_keys[-1]
+            new_keys.pop()
+            added_keys = list(d)[n_keys:]
+
+            for ones in added_keys:
+                del d[ones]
 
             for key in d:
-                j = indices[list(d.keys()).index(key)]
+                j = indices[-1][list(d).index(key)]
                 del d[key][j:]
+            indices.pop()
 
         elif random.random() < 0.1:
             print('(push 1)')
             n_push += 1
 
+            new_keys.append(len(list(d)))
+
+            indices.append([])
             for key in d:
-                indices.append(len(d[key]))
-            n_keys = len(list(d.keys()))
+                indices[-1].append(len(d[key]))
 
     if n_push == n_pop:
         if random.random() < 0.1:
             print('(push 1)')
             n_push += 1
-            
+
+            new_keys.append(len(list(d)))
+
+            indices.append([])
             for key in d:
-                indices.append(len(d[key]))
-            n_keys = len(list(d.keys()))
+                indices[-1].append(len(d[key]))
 
     if random.random() < 0.9:
 #        createUnintSort()
         prob = random.random()
-#declare new Sort
+
+        #declare new Sort
         if prob < 0.33 and n_unintsorts < 4:
             current_sort = UnintSort(n_unintsorts)
             n_unintsorts += 1 
             print('(declare-sort {} 0)'.format(current_sort))
             d[current_sort] = []
-            d[current_sort].append(sVar(current_sort, 0))
-            print('(declare-const {} {})'.format(sVar(current_sort, 0), current_sort))
 
-#add new variable to an existing sort
-        elif prob < 0.66 and len(d.keys()) > 1:
+        #add new variable to an existing sort
+        elif prob < 0.66:
             options = list(d)
             options.remove('Bool')
-            current_sort = random.choice(options)
-            n = len(d[current_sort])
-            d[current_sort].append(sVar(current_sort, n))
-            print('(declare-const {} {})'.format(sVar(current_sort, n), current_sort))
+            if len(options) > 0:
+                current_sort = random.choice(options)
+                n = len(d[current_sort])
+                d[current_sort].append(sVar(current_sort, n))
+                print('(declare-const {} {})'.format(sVar(current_sort, n), current_sort))
 
-#create a boolean expression using two variables in the same sort and add to Bool list
-        elif len(d.keys()) > 1:
-            options = list(d)
-            options.remove('Bool')
-            current_sort = random.choice(options)
-            n_items = random.randrange(2, 5)
-            items = str(random.choice(d[current_sort]))
-            for i in range(n_items-1):
-                items += (" " + str(random.choice(d[current_sort])))
-            if random.random() < 0.5:
-                new_bool = '(= {})'.format(items)
-            else:
-                new_bool = '(distinct {})'.format(items)
-            d['Bool'].append(new_bool)            
+        #create a boolean expression using two variables in the same sort and add to Bool list
+        else:
+            options = []
+            ops = list(d)
+            ops.remove('Bool')
+            for things in ops:
+                if len(d[things]) > 0:
+                    options.append(things)
+            if len(options) > 0:
+                current_sort = random.choice(options)
+                n_items = random.randrange(2, 5)
+                items = str(random.choice(d[current_sort]))
+                for i in range(n_items-1):
+                    items += (" " + str(random.choice(d[current_sort])))
+                if random.random() < 0.5:
+                    new_bool = '(= {})'.format(items)
+                else:
+                    new_bool = '(distinct {})'.format(items)
+                d['Bool'].append(new_bool)            
 
     #decide: var or op
     if random.random() < 0.2:
-        #choose var
         if random.random() < 0.5:
             #create new var and add it to Bool list
             new_var = Var(n_vars)
