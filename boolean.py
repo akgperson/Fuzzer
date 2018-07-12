@@ -80,7 +80,7 @@ class UnIntSort(Sort):
     def __repr__(self):
         return str(self.sort) + str(self.n)
     def __eq__(self, other):
-        return isinstance(other, UnIntSort) and self.n == self.n
+        return isinstance(other, UnIntSort) and self.n == other.n
     def __hash__(self):
         return hash((self.sort, self.n))
 
@@ -91,7 +91,7 @@ class BV(Sort):
     def __repr__(self):
         return str(self.sort) + str(self.w)
     def __eq__(self, other):
-        return isinstance(other, BV) and self.w == self.w
+        return isinstance(other, BV) and self.w == other.w
     def __hash__(self):
         return hash((self.sort, self.w))
 
@@ -164,15 +164,12 @@ class Nodes:
     
     def push(self):
         print('(push 1)')
-        print('; ' + str(list(self.d)))
 
         self.new_keys.append(len(list(self.d)))
 
         self.indices.append([])
         for key in self.d:
             self.indices[-1].append(len(self.d[key]))
-
-        print('; ' + str(self.indices))
 
     def pop(self):
         print('(pop 1)')
@@ -185,14 +182,9 @@ class Nodes:
 
         for key in self.d:
             j = self.indices[-1][list(self.d).index(key)]
-            print('; ' + str(j) + " " + str(len(self.d[key])))
             del self.d[key][j:]
-            print('; ' + str(key) + " " + str(len(self.d[key])))
         self.indices.pop()
 
-        print('; ' + str(list(self.d)))
-        print('; ' + str(self.indices))
-    
     def newSort(self):
         n_unintsorts = 0
         for o in list(self.d):
