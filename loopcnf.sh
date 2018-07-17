@@ -6,7 +6,7 @@ for i in $(seq 1 100); do
     tmpfile=/tmp/booln$$.$i.smt2
     python3 ./cnf.py > $tmpfile 
     echo $tmpfile
-    ./cvc4-07-17-2018 --check-models --check-unsat-cores $tmpfile | tee -a count.txt
+    timeout 10s ./cvc4-07-17-2018 --check-models --check-unsat-cores $tmpfile | tee -a count.txt
 done
 ALL=$(grep -o 'sat' count.txt | wc -l)
 nUNSAT=$(grep -o 'unsat' count.txt | wc -l)
