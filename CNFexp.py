@@ -515,7 +515,7 @@ class Nodes:
         return random.choice(self.d[Bool()])
 
     def num_bool(self):
-        return len(self.d[Bool()])
+        return min(len(self.d[Bool()]), 20)
 
     def bool_sample(self):
         bool_idx = random.sample(range(len(self.d[Bool()])), n_variables)
@@ -591,7 +591,8 @@ for i in range(200):
     if random.random() < 0.33:
         nodes.bool_from_bool()
 
-n_variables, n_clauses = Ratio(1, nodes.num_bool(), 5)
+upp_b = nodes.num_bool()
+n_variables, n_clauses = Ratio(1, upp_b, 5)
 bank = nodes.bool_sample()
 clauses = Clauses(bank)
 clauses.new_cnfs()
