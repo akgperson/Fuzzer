@@ -15,3 +15,4 @@ echo number sat: $nSAT
 echo number unsat: $nUNSAT
 ratio=$(((nSAT*100) / (ALL)))
 echo percent sat: $ratio
+echo $ratio >> percents_cnf.txt

@@ -1,0 +1,2 @@
+ratios gotten from running boolean.py:
+

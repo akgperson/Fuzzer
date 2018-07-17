@@ -15,3 +15,4 @@ echo number sat: $nSat
 echo number unsat: $nUnsat
 Ratio=$(((nSat*100) / (all)))
 echo percent sat: $Ratio
+echo $Ratio >> percents_boolean.txt
