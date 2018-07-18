@@ -171,23 +171,22 @@ class Clauses():
         return random.choice(self.clauses)
     
     def node_from_cnf(self):
-        p = random.randint(1, 7)
-        if p == 1:
-            #pick Unary
-            new_cnf = Op(random.choice(UnOp), random.choice(self.clauses))
-        elif p == 2:
-            #pick Binary
-            operand = ""
-            operand = str(random.choice(self.clauses))
-            operand += (" " + str(random.choice(self.clauses)))
-            new_cnf = Op(random.choice(BiOp), operand)
-        else:    
-            n_operands = random.randint(1, 10)
-            operands = ""
-            operands = str(random.choice(self.clauses))
-            for i in range(n_operands):
-                operands += (" " + str(random.choice(self.clauses)))
-            new_cnf = Op(random.choice(NarOp), operands)
+        n_operands = random.randint(1, 10)
+        operands = ""
+        operands = str(random.choice(self.clauses))
+        for i in range(n_operands):
+            operands += (" " + str(random.choice(self.clauses)))
+        n_and = operands.count('and')
+        n_or = operands.count('or')
+        if n_and > n_or:
+            new_cnf = Op('or', operands)
+        elif n_and < n_or:
+            new_cnf = Op('and', operands)
+        else:
+            if random.random() < 0.5:
+                new_cnf = Op('or', operands)
+            else:  
+                new_cnf = Op('and', operands)
         self.clauses.append(new_cnf)
         return new_cnf
 
@@ -597,10 +596,11 @@ bank = nodes.bool_sample()
 clauses = Clauses(bank)
 clauses.new_cnfs()
 
+
 assertions = random.randrange(0, 100)
 while assertions > 0:
 
-    if random.random() < 0.7:
+    if random.random() < 0.5:
         new_node = clauses.cnf_choice()
     else:
         new_node = clauses.node_from_cnf()
