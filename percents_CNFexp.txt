@@ -1,1 +1,14 @@
 ratios with boolean structures using 3cnf expressions as leaves:
+14
+13
+13
+13
+13
+8
+18
+12
+10
+changed to have even number and and or with no other operators
+52
+55
+58

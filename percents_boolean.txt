@@ -1,2 +1,7 @@
 ratios gotten from running boolean.py:
 
+14
+11
+10
+13
+13

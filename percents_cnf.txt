@@ -1,2 +1,19 @@
 ratios gotten from running cnf.py:
 
+upper bound is 20
+
+40
+53
+
+added upper bound of n_variables to be len of d[Bool()]
+
+15
+13
+9
+
+added upper bound be min of len d[Bool()] and 20
+
+46
+46
+35
+46
