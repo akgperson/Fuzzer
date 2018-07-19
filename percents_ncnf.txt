@@ -1,0 +1,5 @@
+distribution of cnf lengths with no restrictions on lengths of cnfs as long as avg to 3
+19
+20
+24
+14
