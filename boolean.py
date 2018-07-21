@@ -1,9 +1,6 @@
 import random
 from collections import OrderedDict
 
-print('(set-logic ALL)')
-print('(set-option :incremental true)')
-
 class Op:
     def __init__(self, node, expr):
         self.expr = expr
@@ -141,27 +138,158 @@ class Nodes:
         self.new_keys = []
         self.indices = []
 
+        self.a=0.33 #newSort
+        self.b=0.66 #varUSort
+        self.c=1 #bool_from_usort
+        self.ni=0.33 #new_int 
+        self.e=0.33 #int_from_int
+        self.f=0.33 #bool_from_int
+        self.g=0.33 #new_real
+        self.h=0.33 #real_from_real
+        self.m=0.33 #bool_from_real
+        self.v=0.33 #real_and_int
+        self.r=0.33 #new_BV
+        self.t=0.33 #BV_from_BV
+        self.u=0.33 #bool_from_BV
+
         self.n_vars = random.randint(1, 20)
-        for i in range(self.n_vars):
-            self.d[Bool()].append(Var_Bool(i)) 
-            print('(declare-const {} Bool)'.format(Var_Bool(i)))
         self.n_ints = random.randint(1, 20)
-        for i in range(self.n_ints):
-            if random.random() < 0.5:
-                self.d[Int()].append(Var_Int(i))
-                print('(declare-const {} Int)'.format(Var_Int(i)))
-            else:
-                val = random.randint(0, 100)
-                self.d[Int()].append(val)
         self.n_reals = random.randint(1, 20)
-        for i in range(self.n_reals):
-            if random.random() < 0.5:
-                self.d[Real()].append(Var_Real(i))
-                print('(declare-const {} Real)'.format(Var_Real(i)))
-            else:
-                new_real = random_real()
-                self.d[Real()].append(new_real)
     
+    def set_logic(self):
+        p_logic = random.randint(1, 10)
+
+        if p_logic == 1:
+            print('(set-logic ALL)')
+            print('(set-option :incremental true)')
+
+            for i in range(self.n_vars):
+                self.d[Bool()].append(Var_Bool(i)) 
+                print('(declare-const {} Bool)'.format(Var_Bool(i)))
+            for i in range(self.n_ints):
+                if random.random() < 0.5:
+                    self.d[Int()].append(Var_Int(i))
+                    print('(declare-const {} Int)'.format(Var_Int(i)))
+                else:
+                    val = random.randint(0, 100)
+                    self.d[Int()].append(val)
+            for i in range(self.n_reals):
+                if random.random() < 0.5:
+                    self.d[Real()].append(Var_Real(i))
+                    print('(declare-const {} Real)'.format(Var_Real(i)))
+                else:
+                    new_real = random_real()
+                    self.d[Real()].append(new_real)
+
+        elif p_logic == 2:
+            print('(set-logic QF_ABV)')
+            print('(set-option :incremental true)')
+            self.a, self.b, self.c, self.ni, self.e, self.f, self.g, self.h, self.m, self.v = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 
+
+            for i in range(self.n_vars):
+                self.d[Bool()].append(Var_Bool(i)) 
+                print('(declare-const {} Bool)'.format(Var_Bool(i)))
+
+        elif p_logic == 3:
+            print('(set-logic QF_BV)')
+            print('(set-option :incremental true)')
+            self.a, self.b, self.c, self.ni, self.e, self.f, self.g, self.h, self.m, self.v = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+
+            for i in range(self.n_vars):
+                self.d[Bool()].append(Var_Bool(i)) 
+                print('(declare-const {} Bool)'.format(Var_Bool(i)))
+
+        elif p_logic == 4:
+            print('(set-logic QF_AUFBV)')
+            print('(set-option :incremental true)')
+            self.ni, self.e, self.f, self.g, self.h, self.m, self.v = -1, -1, -1, -1, -1, -1, -1
+
+            for i in range(self.n_vars):
+                self.d[Bool()].append(Var_Bool(i)) 
+                print('(declare-const {} Bool)'.format(Var_Bool(i)))
+
+        elif p_logic == 5:
+            print('(set-logic QF_NIA)')
+            print('(set-option :incremental true)')
+            self.a, self.b, self.c, self.g, self.h, self.m, self.v, self.r, self.t, self.u = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+
+            for i in range(self.n_vars):
+                self.d[Bool()].append(Var_Bool(i)) 
+                print('(declare-const {} Bool)'.format(Var_Bool(i)))
+            for i in range(self.n_ints):
+                if random.random() < 0.5:
+                    self.d[Int()].append(Var_Int(i))
+                    print('(declare-const {} Int)'.format(Var_Int(i)))
+                else:
+                    val = random.randint(0, 100)
+                    self.d[Int()].append(val)
+
+        elif p_logic == 6:
+            print('(set-logic QF_NRA)')
+            print('(set-option :incremental true)')
+            self.a, self.b, self.c, self.ni, self.e, self.f, self.v, self.r, self.t, self.u = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+
+            for i in range(self.n_vars):
+                self.d[Bool()].append(Var_Bool(i)) 
+                print('(declare-const {} Bool)'.format(Var_Bool(i)))
+            for i in range(self.n_reals):
+                if random.random() < 0.5:
+                    self.d[Real()].append(Var_Real(i))
+                    print('(declare-const {} Real)'.format(Var_Real(i)))
+                else:
+                    new_real = random_real()
+                    self.d[Real()].append(new_real)
+
+        elif p_logic == 7:
+            print('(set-logic QF_UF)')
+            print('(set-option :incremental true)')
+            self.ni, self.e, self.f, self.g, self.h, self.m, self.v, self.r, self.t, self.u = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+
+            for i in range(self.n_vars):
+                self.d[Bool()].append(Var_Bool(i)) 
+                print('(declare-const {} Bool)'.format(Var_Bool(i)))
+
+        elif p_logic == 8:
+            print('(set-logic QF_UFBV)')
+            print('(set-option :incremental true)')
+            self.ni, self.e, self.f, self.g, self.h, self.m, self.v = -1, -1, -1, -1, -1, -1, -1
+
+            for i in range(self.n_vars):
+                self.d[Bool()].append(Var_Bool(i)) 
+                print('(declare-const {} Bool)'.format(Var_Bool(i)))
+
+        elif p_logic == 9:
+            print('(set-logic QF_UFNRA)')
+            print('(set-option :incremental true)')
+            self.ni, self.e, self.f, self.v, self.r, self.t, self.u = -1, -1, -1, -1, -1, -1, -1
+
+            for i in range(self.n_vars):
+                self.d[Bool()].append(Var_Bool(i)) 
+                print('(declare-const {} Bool)'.format(Var_Bool(i)))
+            for i in range(self.n_reals):
+                if random.random() < 0.5:
+                    self.d[Real()].append(Var_Real(i))
+                    print('(declare-const {} Real)'.format(Var_Real(i)))
+                else:
+                    new_real = random_real()
+                    self.d[Real()].append(new_real)
+
+        elif p_logic == 10:
+            print('(set-logic QF_UFNIA)')
+            print('(set-option :incremental true)')
+            self.g, self.h, self.m, self.v, self.r, self.t, self.u = -1, -1, -1, -1, -1, -1, -1
+
+            for i in range(self.n_vars):
+                self.d[Bool()].append(Var_Bool(i)) 
+                print('(declare-const {} Bool)'.format(Var_Bool(i)))
+            for i in range(self.n_ints):
+                if random.random() < 0.5:
+                    self.d[Int()].append(Var_Int(i))
+                    print('(declare-const {} Int)'.format(Var_Int(i)))
+                else:
+                    val = random.randint(0, 100)
+                    self.d[Int()].append(val)
+
     def push(self):
         print('(push 1)')
 
@@ -473,6 +601,8 @@ Bin_BV_Bool = ["bvult", "bvule", "bvugt", "bvuge", "bvslt", "bvsle", "bvsgt", "b
 N_BV_Bool = ["=", "distinct"]
 
 nodes = Nodes()
+nodes.set_logic()
+
 assertions = random.randrange(0, 100)
 while assertions > 0:
 
@@ -490,34 +620,34 @@ while assertions > 0:
 
     if random.random() < 0.2:
         prob = random.random()
-        if prob < 0.33:
+        if prob < nodes.a:
             nodes.newSort()
-        elif prob < 0.66:
+        elif prob < nodes.b:
             nodes.varUSort()
-        else:
+        elif prob < nodes.c:
             nodes.bool_from_usort()
     
     if random.random() < 0.33:
         nodes.new_bool()
-    if random.random() < 0.33:
+    if random.random() < nodes.ni:
         nodes.new_int()
-    if random.random() < 0.33:
+    if random.random() < nodes.e:
         nodes.int_from_int()
-    if random.random() < 0.33:
+    if random.random() < nodes.f:
         nodes.bool_from_int()
-    if random.random() < 0.33:
+    if random.random() < nodes.g:
         nodes.new_real()
-    if random.random() < 0.33:
+    if random.random() < nodes.h:
         nodes.real_from_real()
-    if random.random() < 0.33:
+    if random.random() < nodes.m:
         nodes.bool_from_real()
-    if random.random() < 0.33:
+    if random.random() < nodes.v:
         nodes.real_and_int()
-    if random.random() < 0.33:
+    if random.random() < nodes.r:
         nodes.new_BV()
-    if random.random() < 0.33:
+    if random.random() < nodes.t:
         nodes.BV_from_BV()
-    if random.random() < 0.33:
+    if random.random() < nodes.u:
         nodes.bool_from_BV()
 
     if random.random() < 0.5:
