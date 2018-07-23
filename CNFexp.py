@@ -190,6 +190,15 @@ class Clauses():
         self.clauses.append(new_cnf)
         return new_cnf
 
+    def bin_node(self):
+        op1 = '{} {}'.format(random.choice(self.clauses), random.choice(self.clauses))
+        op2 = '{} {}'.format(random.choice(self.clauses), random.choice(self.clauses))
+        new_cnf1 = Op('=>', op1)
+        new_cnf2 = Op('or', op2)
+        self.clauses.append(new_cnf1)
+        self.clauses.append(new_cnf2)
+        return new_cnf1, new_cnf2
+
 class Nodes:
     def __init__(self):
         self.d = OrderedDict()
@@ -608,6 +617,12 @@ while assertions > 0:
     if random.random() < 0.6:
         print('(assert {})'.format(new_node))
         assertions -= 1
+
+    if random.random() < 0.2:
+        node1, node2 = clauses.bin_node()
+        print('(assert {})'.format(node1))
+        print('(assert {})'.format(node2))
+        assertions -= 2
 
     if random.random() < 0.05:
         print('(check-sat)')
