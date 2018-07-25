@@ -3,9 +3,6 @@ import argparse
 import random
 from collections import OrderedDict
 
-#parser = argparse.ArgumentParser()
-#parser.add_argument()
-
 class Op:
     def __init__(self, node, expr):
         self.expr = expr
@@ -144,6 +141,90 @@ def find(s, ch):
 def replace_idx(s, index, replacement):
     return '{}{}{}'.format(s[:index], replacement, s[index+1:])
 
+def set_logic(*arg):
+    a=0.33 #newSort
+    b=0.66 #varUSort
+    c=1 #bool_from_usort
+    ni=0.33 #new_int 
+    e=0.33 #int_from_int
+    f=0.33 #bool_from_int
+    g=0.33 #new_real
+    h=0.33 #real_from_real
+    m=0.33 #bool_from_real
+    v=0.33 #real_and_int
+    r=0.33 #new_BV
+    t=0.33 #BV_from_BV
+    u=0.33 #bool_from_BV
+    add_reals = 0
+    add_ints = 0
+    
+    if len(arg) == 1:
+        p_logic = arg[0]
+    else:
+        p_logic = random.randint(1, 10)
+
+    if p_logic == 1:
+        print('(set-logic ALL)')
+        print('(set-option :incremental true)')
+
+        add_reals = 1
+        add_ints = 1
+
+    elif p_logic == 2:
+        print('(set-logic QF_ABV)')
+        print('(set-option :incremental true)')
+        a, b, c, ni, e, f, g, h, m, v = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 
+
+    elif p_logic == 3:
+        print('(set-logic QF_BV)')
+        print('(set-option :incremental true)')
+        a, b, c, ni, e, f, g, h, m, v = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+
+    elif p_logic == 4:
+        print('(set-logic QF_AUFBV)')
+        print('(set-option :incremental true)')
+        ni, e, f, g, h, m, v = -1, -1, -1, -1, -1, -1, -1
+
+    elif p_logic == 5:
+        print('(set-logic QF_NIA)')
+        print('(set-option :incremental true)')
+        a, b, c, g, h, m, v, r, t, u = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+
+        add_ints = 1
+
+    elif p_logic == 6:
+        print('(set-logic QF_NRA)')
+        print('(set-option :incremental true)')
+        a, b, c, ni, e, f, v, r, t, u = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+
+        add_reals = 1
+
+    elif p_logic == 7:
+        print('(set-logic QF_UF)')
+        print('(set-option :incremental true)')
+        ni, e, f, g, h, m, v, r, t, u = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+
+    elif p_logic == 8:
+        print('(set-logic QF_UFBV)')
+        print('(set-option :incremental true)')
+        ni, e, f, g, h, m, v = -1, -1, -1, -1, -1, -1, -1
+
+    elif p_logic == 9:
+        print('(set-logic QF_UFNRA)')
+        print('(set-option :incremental true)')
+        ni, e, f, v, r, t, u = -1, -1, -1, -1, -1, -1, -1
+
+        add_reals = 1
+
+    elif p_logic == 10:
+        print('(set-logic QF_UFNIA)')
+        print('(set-option :incremental true)')
+        g, h, m, v, r, t, u = -1, -1, -1, -1, -1, -1, -1
+
+        add_ints = 1
+
+    return a, b, c, ni, e, f, g, h, m, v, r, t, u, add_ints, add_reals
+
 class Clauses():
     def __init__(self, b, nc):
         self.n_clauses = nc
@@ -247,167 +328,42 @@ class Clauses():
         return new_cnf1, new_cnf2
 
 class Nodes:
-    def __init__(self):
+    def __init__(self, a_ints, a_reals):
         self.d = OrderedDict()
         self.d[Bool()] = []
         self.d[Int()] = []
         self.d[Real()] = []
 
+        self.initial_ints = a_ints
+        self.initial_reals = a_reals
+
         self.new_keys = []
         self.indices = []
-
-        self.a=0.33 #newSort
-        self.b=0.66 #varUSort
-        self.c=1 #bool_from_usort
-        self.ni=0.33 #new_int 
-        self.e=0.33 #int_from_int
-        self.f=0.33 #bool_from_int
-        self.g=0.33 #new_real
-        self.h=0.33 #real_from_real
-        self.m=0.33 #bool_from_real
-        self.v=0.33 #real_and_int
-        self.r=0.33 #new_BV
-        self.t=0.33 #BV_from_BV
-        self.u=0.33 #bool_from_BV
 
         self.n_vars = random.randint(1, 20)
         self.n_ints = random.randint(1, 20)
         self.n_reals = random.randint(1, 20)
+
+        for i in range(self.n_vars):
+            self.d[Bool()].append(Var_Bool(i)) 
+            print('(declare-const {} Bool)'.format(Var_Bool(i)))
+        if self.initial_ints == 1:
+            for i in range(self.n_ints):
+                if random.random() < 0.5:
+                    self.d[Int()].append(Var_Int(i))
+                    print('(declare-const {} Int)'.format(Var_Int(i)))
+                else:   
+                    val = random.randint(0, 100)
+                    self.d[Int()].append(val)
+        if self.initial_reals == 1:
+            for i in range(self.n_reals):
+                if random.random() < 0.5:
+                    self.d[Real()].append(Var_Real(i))
+                    print('(declare-const {} Real)'.format(Var_Real(i)))
+                else:
+                    new_real = random_real()
+                    self.d[Real()].append(new_real)
     
-    def set_random_logic(self):
-        p_logic = random.randint(1, 10)
-
-        if p_logic == 1:
-            print('(set-logic ALL)')
-            print('(set-option :incremental true)')
-
-            for i in range(self.n_vars):
-                self.d[Bool()].append(Var_Bool(i)) 
-                print('(declare-const {} Bool)'.format(Var_Bool(i)))
-            for i in range(self.n_ints):
-                if random.random() < 0.5:
-                    self.d[Int()].append(Var_Int(i))
-                    print('(declare-const {} Int)'.format(Var_Int(i)))
-                else:
-                    val = random.randint(0, 100)
-                    self.d[Int()].append(val)
-            for i in range(self.n_reals):
-                if random.random() < 0.5:
-                    self.d[Real()].append(Var_Real(i))
-                    print('(declare-const {} Real)'.format(Var_Real(i)))
-                else:
-                    new_real = random_real()
-                    self.d[Real()].append(new_real)
-
-        elif p_logic == 2:
-            print('(set-logic QF_ABV)')
-            print('(set-option :incremental true)')
-            self.a, self.b, self.c, self.ni, self.e, self.f, self.g, self.h, self.m, self.v = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 
-
-            for i in range(self.n_vars):
-                self.d[Bool()].append(Var_Bool(i)) 
-                print('(declare-const {} Bool)'.format(Var_Bool(i)))
-
-        elif p_logic == 3:
-            print('(set-logic QF_BV)')
-            print('(set-option :incremental true)')
-            self.a, self.b, self.c, self.ni, self.e, self.f, self.g, self.h, self.m, self.v = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
-
-            for i in range(self.n_vars):
-                self.d[Bool()].append(Var_Bool(i)) 
-                print('(declare-const {} Bool)'.format(Var_Bool(i)))
-
-        elif p_logic == 4:
-            print('(set-logic QF_AUFBV)')
-            print('(set-option :incremental true)')
-            self.ni, self.e, self.f, self.g, self.h, self.m, self.v = -1, -1, -1, -1, -1, -1, -1
-
-            for i in range(self.n_vars):
-                self.d[Bool()].append(Var_Bool(i)) 
-                print('(declare-const {} Bool)'.format(Var_Bool(i)))
-
-        elif p_logic == 5:
-            print('(set-logic QF_NIA)')
-            print('(set-option :incremental true)')
-            self.a, self.b, self.c, self.g, self.h, self.m, self.v, self.r, self.t, self.u = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
-
-            for i in range(self.n_vars):
-                self.d[Bool()].append(Var_Bool(i)) 
-                print('(declare-const {} Bool)'.format(Var_Bool(i)))
-            for i in range(self.n_ints):
-                if random.random() < 0.5:
-                    self.d[Int()].append(Var_Int(i))
-                    print('(declare-const {} Int)'.format(Var_Int(i)))
-                else:
-                    val = random.randint(0, 100)
-                    self.d[Int()].append(val)
-
-        elif p_logic == 6:
-            print('(set-logic QF_NRA)')
-            print('(set-option :incremental true)')
-            self.a, self.b, self.c, self.ni, self.e, self.f, self.v, self.r, self.t, self.u = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
-
-            for i in range(self.n_vars):
-                self.d[Bool()].append(Var_Bool(i)) 
-                print('(declare-const {} Bool)'.format(Var_Bool(i)))
-            for i in range(self.n_reals):
-                if random.random() < 0.5:
-                    self.d[Real()].append(Var_Real(i))
-                    print('(declare-const {} Real)'.format(Var_Real(i)))
-                else:
-                    new_real = random_real()
-                    self.d[Real()].append(new_real)
-
-        elif p_logic == 7:
-            print('(set-logic QF_UF)')
-            print('(set-option :incremental true)')
-            self.ni, self.e, self.f, self.g, self.h, self.m, self.v, self.r, self.t, self.u = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
-
-            for i in range(self.n_vars):
-                self.d[Bool()].append(Var_Bool(i)) 
-                print('(declare-const {} Bool)'.format(Var_Bool(i)))
-
-        elif p_logic == 8:
-            print('(set-logic QF_UFBV)')
-            print('(set-option :incremental true)')
-            self.ni, self.e, self.f, self.g, self.h, self.m, self.v = -1, -1, -1, -1, -1, -1, -1
-
-            for i in range(self.n_vars):
-                self.d[Bool()].append(Var_Bool(i)) 
-                print('(declare-const {} Bool)'.format(Var_Bool(i)))
-
-        elif p_logic == 9:
-            print('(set-logic QF_UFNRA)')
-            print('(set-option :incremental true)')
-            self.ni, self.e, self.f, self.v, self.r, self.t, self.u = -1, -1, -1, -1, -1, -1, -1
-
-            for i in range(self.n_vars):
-                self.d[Bool()].append(Var_Bool(i)) 
-                print('(declare-const {} Bool)'.format(Var_Bool(i)))
-            for i in range(self.n_reals):
-                if random.random() < 0.5:
-                    self.d[Real()].append(Var_Real(i))
-                    print('(declare-const {} Real)'.format(Var_Real(i)))
-                else:
-                    new_real = random_real()
-                    self.d[Real()].append(new_real)
-
-        elif p_logic == 10:
-            print('(set-logic QF_UFNIA)')
-            print('(set-option :incremental true)')
-            self.g, self.h, self.m, self.v, self.r, self.t, self.u = -1, -1, -1, -1, -1, -1, -1
-
-            for i in range(self.n_vars):
-                self.d[Bool()].append(Var_Bool(i)) 
-                print('(declare-const {} Bool)'.format(Var_Bool(i)))
-            for i in range(self.n_ints):
-                if random.random() < 0.5:
-                    self.d[Int()].append(Var_Int(i))
-                    print('(declare-const {} Int)'.format(Var_Int(i)))
-                else:
-                    val = random.randint(0, 100)
-                    self.d[Int()].append(val)
-
     def push(self):
         print('(push 1)')
 
@@ -726,12 +682,12 @@ Bin_BV_Bool = ["bvult", "bvule", "bvugt", "bvuge", "bvslt", "bvsle", "bvsgt", "b
 N_BV_Bool = ["=", "distinct"]
 
 
-def bool_fuzz():
+def bool_fuzz(*arg):
     n_push = 0
     n_pop = 0
 
-    nodes = Nodes()
-    nodes.set_random_logic()
+    a, b, c, ni, e, f, g, h, m, v, r, t, u, add_ints, add_reals = set_logic(*arg)
+    nodes = Nodes(add_ints, add_reals)
 
     assertions = random.randrange(0, 100)
     while assertions > 0:
@@ -750,34 +706,34 @@ def bool_fuzz():
 
         if random.random() < 0.2:
             prob = random.random()
-            if prob < nodes.a:
+            if prob < a:
                 nodes.newSort()
-            elif prob < nodes.b:
+            elif prob < b:
                 nodes.varUSort()
-            elif prob < nodes.c:
+            elif prob < c:
                 nodes.bool_from_usort()
     
         if random.random() < 0.33:
             nodes.new_bool()
-        if random.random() < nodes.ni:
+        if random.random() < ni:
             nodes.new_int()
-        if random.random() < nodes.e:
+        if random.random() < e:
             nodes.int_from_int()
-        if random.random() < nodes.f:
+        if random.random() < f:
             nodes.bool_from_int()
-        if random.random() < nodes.g:
+        if random.random() < g:
             nodes.new_real()
-        if random.random() < nodes.h:
+        if random.random() < h:
             nodes.real_from_real()
-        if random.random() < nodes.m:
+        if random.random() < m:
             nodes.bool_from_real()
-        if random.random() < nodes.v:
+        if random.random() < v:
             nodes.real_and_int()
-        if random.random() < nodes.r:
+        if random.random() < r:
             nodes.new_BV()
-        if random.random() < nodes.t:
+        if random.random() < t:
             nodes.BV_from_BV()
-        if random.random() < nodes.u:
+        if random.random() < u:
             nodes.bool_from_BV()
 
         if random.random() < 0.5:
@@ -792,12 +748,12 @@ def bool_fuzz():
         if random.random() < 0.05:
             print('(check-sat)')
 
-def cnf_fuzz():
+def cnf_fuzz(*arg):
     n_push = 0
     n_pop = 0
 
-    nodes = Nodes()
-    nodes.set_random_logic()
+    a, b, c, ni, e, f, g, h, m, v, r, t, u, add_ints, add_reals = set_logic(*arg)
+    nodes = Nodes(add_ints, add_reals)
 
     for i in range(200):
 
@@ -815,34 +771,34 @@ def cnf_fuzz():
 
         if random.random() < 0.2:
             prob = random.random()
-            if prob < nodes.a:
+            if prob < a:
                 nodes.newSort()
-            elif prob < nodes.b:
+            elif prob < b:
                 nodes.varUSort()
-            elif prob < nodes.c:
+            elif prob < c:
                 nodes.bool_from_usort()
     
         if random.random() < 0.33:
             nodes.new_bool()
-        if random.random() < nodes.ni:
+        if random.random() < ni:
             nodes.new_int()
-        if random.random() < nodes.e:
+        if random.random() < e:
             nodes.int_from_int()
-        if random.random() < nodes.f:
+        if random.random() < f:
             nodes.bool_from_int()
-        if random.random() < nodes.g:
+        if random.random() < g:
             nodes.new_real()
-        if random.random() < nodes.h:
+        if random.random() < h:
             nodes.real_from_real()
-        if random.random() < nodes.m:
+        if random.random() < m:
             nodes.bool_from_real()
-        if random.random() < nodes.v:
+        if random.random() < v:
             nodes.real_and_int()
-        if random.random() < nodes.r:
+        if random.random() < r:
             nodes.new_BV()
-        if random.random() < nodes.t:
+        if random.random() < t:
             nodes.BV_from_BV()
-        if random.random() < nodes.u:
+        if random.random() < u:
             nodes.bool_from_BV()
         if random.random() < 0.33:
             nodes.bool_from_bool()
@@ -853,12 +809,12 @@ def cnf_fuzz():
     clauses = Clauses(bank, n_clauses)
     clauses.new_cnfs()
 
-def ncnf_fuzz():
+def ncnf_fuzz(*arg):
     n_push = 0
     n_pop = 0
 
-    nodes = Nodes()
-    nodes.set_random_logic()
+    a, b, c, ni, e, f, g, h, m, v, r, t, u, add_ints, add_reals = set_logic(*arg)
+    nodes = Nodes(add_ints, add_reals)
 
     for i in range(200):
 
@@ -876,34 +832,34 @@ def ncnf_fuzz():
 
         if random.random() < 0.2:
             prob = random.random()
-            if prob < nodes.a:
+            if prob < a:
                 nodes.newSort()
-            elif prob < nodes.b:
+            elif prob < b:
                 nodes.varUSort()
-            elif prob < nodes.c:
+            elif prob < c:
                 nodes.bool_from_usort()
     
         if random.random() < 0.33:
             nodes.new_bool()
-        if random.random() < nodes.ni:
+        if random.random() < ni:
             nodes.new_int()
-        if random.random() < nodes.e:
+        if random.random() < e:
             nodes.int_from_int()
-        if random.random() < nodes.f:
+        if random.random() < f:
             nodes.bool_from_int()
-        if random.random() < nodes.g:
+        if random.random() < g:
             nodes.new_real()
-        if random.random() < nodes.h:
+        if random.random() < h:
             nodes.real_from_real()
-        if random.random() < nodes.m:
+        if random.random() < m:
             nodes.bool_from_real()
-        if random.random() < nodes.v:
+        if random.random() < v:
             nodes.real_and_int()
-        if random.random() < nodes.r:
+        if random.random() < r:
             nodes.new_BV()
-        if random.random() < nodes.t:
+        if random.random() < t:
             nodes.BV_from_BV()
-        if random.random() < nodes.u:
+        if random.random() < u:
             nodes.bool_from_BV()
         if random.random() < 0.33:
             nodes.bool_from_bool()
@@ -914,12 +870,12 @@ def ncnf_fuzz():
     clauses = Clauses(bank, n_clauses)
     clauses.new_dist_cnfs()
 
-def CNFexp_fuzz():
+def CNFexp_fuzz(*arg):
     n_push = 0
     n_pop = 0
 
-    nodes = Nodes()
-    nodes.set_random_logic()
+    a, b, c, ni, e, f, g, h, m, v, r, t, u, add_ints, add_reals = set_logic(*arg)
+    nodes = Nodes(add_ints, add_reals)
 
     for i in range(200):
 
@@ -937,34 +893,34 @@ def CNFexp_fuzz():
 
         if random.random() < 0.2:
             prob = random.random()
-            if prob < nodes.a:
+            if prob < a:
                 nodes.newSort()
-            elif prob < nodes.b:
+            elif prob < b:
                 nodes.varUSort()
-            elif prob < nodes.c:
+            elif prob < c:
                 nodes.bool_from_usort()
     
         if random.random() < 0.33:
             nodes.new_bool()
-        if random.random() < nodes.ni:
+        if random.random() < ni:
             nodes.new_int()
-        if random.random() < nodes.e:
+        if random.random() < e:
             nodes.int_from_int()
-        if random.random() < nodes.f:
+        if random.random() < f:
             nodes.bool_from_int()
-        if random.random() < nodes.g:
+        if random.random() < g:
             nodes.new_real()
-        if random.random() < nodes.h:
+        if random.random() < h:
             nodes.real_from_real()
-        if random.random() < nodes.m:
+        if random.random() < m:
             nodes.bool_from_real()
-        if random.random() < nodes.v:
+        if random.random() < v:
             nodes.real_and_int()
-        if random.random() < nodes.r:
+        if random.random() < r:
             nodes.new_BV()
-        if random.random() < nodes.t:
+        if random.random() < t:
             nodes.BV_from_BV()
-        if random.random() < nodes.u:
+        if random.random() < u:
             nodes.bool_from_BV()
         if random.random() < 0.33:
             nodes.bool_from_bool()
@@ -996,7 +952,11 @@ def CNFexp_fuzz():
         if random.random() < 0.05:
             print('(check-sat)')
 
-CNFexp_fuzz()
+bool_fuzz()
+#parser = argparse.ArgumentParser()
+#parser.add_argument('--', dest='action', action='store_const', const=)
+
+#to set a particular logic call the function for the strategy you want with the argument of the number corresponding to the correct logic you want. Like bool_fuzz(1) for logic ALL
 
 print("(check-sat)")
 print("(exit)")
