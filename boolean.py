@@ -1,5 +1,10 @@
+import math
+import argparse
 import random
 from collections import OrderedDict
+
+#parser = argparse.ArgumentParser()
+#parser.add_argument()
 
 class Op:
     def __init__(self, node, expr):
@@ -128,6 +133,119 @@ def random_BV():
         bv = "(_ bv{} {})".format(num, width)
     return bv, width
 
+def Ratio(lower_bound, upper_bound, ratio):
+    n_variables = random.randint(lower_bound, upper_bound)
+    n_clauses = math.ceil(ratio * n_variables)
+    return n_variables, n_clauses
+
+def find(s, ch):
+    return [i for i, ltr in enumerate(s) if ltr == ch]
+
+def replace_idx(s, index, replacement):
+    return '{}{}{}'.format(s[:index], replacement, s[index+1:])
+
+class Clauses():
+    def __init__(self, b, nc):
+        self.n_clauses = nc
+        self.clauses = []
+        self.unused_options = list(b)
+        self.all_options = list(b)
+
+    def new_cnfs(self):
+        for i in range(self.n_clauses):
+            cnf = "(or "
+            for j in range(2):
+                n_left = ((self.n_clauses-i)*3) + (3-j)
+                if len(self.unused_options) == n_left:
+                    addition = random.choice(self.unused_options)
+                    cnf += (str(addition) + " ")
+                    self.unused_options.remove(addition)
+                else:
+                    addition = random.choice(self.all_options)
+                    cnf += (str(addition) + " ")
+                    if addition in self.unused_options:
+                        self.unused_options.remove(addition)
+            n_left = ((self.n_clauses-i)*3) + (3-j)
+            if len(self.unused_options) == n_left:
+                addition = random.choice(self.unused_options)
+                cnf += (str(addition) + ")")
+            else:
+                addition = random.choice(self.all_options)
+                cnf += (str(addition) + ")")
+            self.clauses.append(cnf)
+            print('(assert ' + cnf + ')')
+
+    def new_dist_cnfs(self):
+        n_slots = (self.n_clauses * 3)
+        string = ""
+        for i in range(n_slots - 1):
+            n_left = n_slots - i
+            if len(self.unused_options) == n_left:
+                addition = random.choice(self.unused_options)
+                string += (str(addition) + "$")
+                self.unused_options.remove(addition)
+            else:
+                addition = random.choice(self.all_options)
+                string += (str(addition) + "$")
+                if addition in self.unused_options:
+                    self.unused_options.remove(addition)
+        if len(self.unused_options) == 1:
+            addition = random.choice(self.unused_options)
+            string += str(addition)
+        else:
+            addition = random.choice(self.all_options)
+            string += str(addition)
+
+        place_holders = find(string, '$')
+        w = n_slots - (self.n_clauses - 1)
+        spaces = random.sample(place_holders, w)  
+        for x in spaces:
+            string = replace_idx(string, x, ' ')
+        partitions = find(string, '$') 
+        CNFs = []
+        for x in partitions:
+            c = string[:x]
+            q = c.rfind('$')
+            if q >= 0:
+                c = c[q+1:] 
+            CNFs.append(c)
+        for items in CNFs:
+            new_CNF = '(or {})'.format(items)
+            self.clauses.append(new_CNF)
+            print('(assert {})'.format(new_CNF))
+
+    def cnf_choice(self):
+        return random.choice(self.clauses)
+    
+    def node_from_cnf(self):
+        n_operands = random.randint(1, 10)
+        operands = ""
+        operands = str(random.choice(self.clauses))
+        for i in range(n_operands):
+            operands += (" " + str(random.choice(self.clauses)))
+        n_and = operands.count('and')
+        n_or = operands.count('or')
+        if n_and > n_or:
+            new_cnf = Op('or', operands)
+        elif n_and < n_or:
+            new_cnf = Op('and', operands)
+        else:
+            if random.random() < 0.5:
+                new_cnf = Op('or', operands)
+            else:  
+                new_cnf = Op('and', operands)
+        self.clauses.append(new_cnf)
+        return new_cnf
+
+    def bin_node(self):
+        op1 = '{} {}'.format(random.choice(self.clauses), random.choice(self.clauses))
+        op2 = '{} {}'.format(random.choice(self.clauses), random.choice(self.clauses))
+        new_cnf1 = Op('=>', op1)
+        new_cnf2 = Op('or', op2)
+        self.clauses.append(new_cnf1)
+        self.clauses.append(new_cnf2)
+        return new_cnf1, new_cnf2
+
 class Nodes:
     def __init__(self):
         self.d = OrderedDict()
@@ -156,7 +274,7 @@ class Nodes:
         self.n_ints = random.randint(1, 20)
         self.n_reals = random.randint(1, 20)
     
-    def set_logic(self):
+    def set_random_logic(self):
         p_logic = random.randint(1, 10)
 
         if p_logic == 1:
@@ -582,8 +700,15 @@ class Nodes:
     def bool_choice(self):
         return random.choice(self.d[Bool()])
 
-n_push = 0
-n_pop = 0
+    def num_bool(self):
+        return min(len(self.d[Bool()]), 20)
+
+    def bool_sample(self, nvar):
+        bool_idx = random.sample(range(len(self.d[Bool()])), nvar)
+        sample = []
+        for x in bool_idx:
+            sample.append(self.d[Bool()][x])
+        return sample
 
 UnOp = ["not"]
 BiOp = ["=>"]
@@ -600,67 +725,278 @@ Un_BV_BV = ["bvnot", "bvneg"]
 Bin_BV_Bool = ["bvult", "bvule", "bvugt", "bvuge", "bvslt", "bvsle", "bvsgt", "bvsge"]
 N_BV_Bool = ["=", "distinct"]
 
-nodes = Nodes()
-nodes.set_logic()
 
-assertions = random.randrange(0, 100)
-while assertions > 0:
+def bool_fuzz():
+    n_push = 0
+    n_pop = 0
 
-    if n_push > n_pop:
-        if random.random() < 0.1:
-            nodes.pop()
-            n_pop += 1
-        elif random.random() < 0.1:
-            nodes.push()
-            n_push += 1
-    if n_push == n_pop:
-        if random.random() < 0.1:
-            nodes.push()
-            n_push += 1
+    nodes = Nodes()
+    nodes.set_random_logic()
 
-    if random.random() < 0.2:
-        prob = random.random()
-        if prob < nodes.a:
-            nodes.newSort()
-        elif prob < nodes.b:
-            nodes.varUSort()
-        elif prob < nodes.c:
-            nodes.bool_from_usort()
+    assertions = random.randrange(0, 100)
+    while assertions > 0:
+
+        if n_push > n_pop:
+            if random.random() < 0.1:
+                nodes.pop()
+                n_pop += 1
+            elif random.random() < 0.1:
+                nodes.push()
+                n_push += 1
+        if n_push == n_pop:
+            if random.random() < 0.1:
+                nodes.push()
+                n_push += 1
+
+        if random.random() < 0.2:
+            prob = random.random()
+            if prob < nodes.a:
+                nodes.newSort()
+            elif prob < nodes.b:
+                nodes.varUSort()
+            elif prob < nodes.c:
+                nodes.bool_from_usort()
     
-    if random.random() < 0.33:
-        nodes.new_bool()
-    if random.random() < nodes.ni:
-        nodes.new_int()
-    if random.random() < nodes.e:
-        nodes.int_from_int()
-    if random.random() < nodes.f:
-        nodes.bool_from_int()
-    if random.random() < nodes.g:
-        nodes.new_real()
-    if random.random() < nodes.h:
-        nodes.real_from_real()
-    if random.random() < nodes.m:
-        nodes.bool_from_real()
-    if random.random() < nodes.v:
-        nodes.real_and_int()
-    if random.random() < nodes.r:
-        nodes.new_BV()
-    if random.random() < nodes.t:
-        nodes.BV_from_BV()
-    if random.random() < nodes.u:
-        nodes.bool_from_BV()
+        if random.random() < 0.33:
+            nodes.new_bool()
+        if random.random() < nodes.ni:
+            nodes.new_int()
+        if random.random() < nodes.e:
+            nodes.int_from_int()
+        if random.random() < nodes.f:
+            nodes.bool_from_int()
+        if random.random() < nodes.g:
+            nodes.new_real()
+        if random.random() < nodes.h:
+            nodes.real_from_real()
+        if random.random() < nodes.m:
+            nodes.bool_from_real()
+        if random.random() < nodes.v:
+            nodes.real_and_int()
+        if random.random() < nodes.r:
+            nodes.new_BV()
+        if random.random() < nodes.t:
+            nodes.BV_from_BV()
+        if random.random() < nodes.u:
+            nodes.bool_from_BV()
 
-    if random.random() < 0.5:
-        new_node = nodes.bool_choice()    
-    else:
-        new_node = nodes.bool_from_bool()
+        if random.random() < 0.5:
+            new_node = nodes.bool_choice()    
+        else:
+            new_node = nodes.bool_from_bool()
 
-    if random.random() < 0.4:
-        print('(assert {})'.format(new_node))
-        assertions -= 1
+        if random.random() < 0.4:
+            print('(assert {})'.format(new_node))
+            assertions -= 1
+    
+        if random.random() < 0.05:
+            print('(check-sat)')
 
-    if random.random() < 0.05:
-        print('(check-sat)')
+def cnf_fuzz():
+    n_push = 0
+    n_pop = 0
+
+    nodes = Nodes()
+    nodes.set_random_logic()
+
+    for i in range(200):
+
+        if n_push > n_pop:
+            if random.random() < 0.1:
+                nodes.pop()
+                n_pop += 1
+            elif random.random() < 0.1:
+                nodes.push()
+                n_push += 1
+        if n_push == n_pop:
+            if random.random() < 0.1:
+                nodes.push()
+                n_push += 1
+
+        if random.random() < 0.2:
+            prob = random.random()
+            if prob < nodes.a:
+                nodes.newSort()
+            elif prob < nodes.b:
+                nodes.varUSort()
+            elif prob < nodes.c:
+                nodes.bool_from_usort()
+    
+        if random.random() < 0.33:
+            nodes.new_bool()
+        if random.random() < nodes.ni:
+            nodes.new_int()
+        if random.random() < nodes.e:
+            nodes.int_from_int()
+        if random.random() < nodes.f:
+            nodes.bool_from_int()
+        if random.random() < nodes.g:
+            nodes.new_real()
+        if random.random() < nodes.h:
+            nodes.real_from_real()
+        if random.random() < nodes.m:
+            nodes.bool_from_real()
+        if random.random() < nodes.v:
+            nodes.real_and_int()
+        if random.random() < nodes.r:
+            nodes.new_BV()
+        if random.random() < nodes.t:
+            nodes.BV_from_BV()
+        if random.random() < nodes.u:
+            nodes.bool_from_BV()
+        if random.random() < 0.33:
+            nodes.bool_from_bool()
+
+    upp_b = nodes.num_bool()
+    n_variables, n_clauses = Ratio(1, upp_b, 5)
+    bank = nodes.bool_sample(n_variables)
+    clauses = Clauses(bank, n_clauses)
+    clauses.new_cnfs()
+
+def ncnf_fuzz():
+    n_push = 0
+    n_pop = 0
+
+    nodes = Nodes()
+    nodes.set_random_logic()
+
+    for i in range(200):
+
+        if n_push > n_pop:
+            if random.random() < 0.1:
+                nodes.pop()
+                n_pop += 1
+            elif random.random() < 0.1:
+                nodes.push()
+                n_push += 1
+        if n_push == n_pop:
+            if random.random() < 0.1:
+                nodes.push()
+                n_push += 1
+
+        if random.random() < 0.2:
+            prob = random.random()
+            if prob < nodes.a:
+                nodes.newSort()
+            elif prob < nodes.b:
+                nodes.varUSort()
+            elif prob < nodes.c:
+                nodes.bool_from_usort()
+    
+        if random.random() < 0.33:
+            nodes.new_bool()
+        if random.random() < nodes.ni:
+            nodes.new_int()
+        if random.random() < nodes.e:
+            nodes.int_from_int()
+        if random.random() < nodes.f:
+            nodes.bool_from_int()
+        if random.random() < nodes.g:
+            nodes.new_real()
+        if random.random() < nodes.h:
+            nodes.real_from_real()
+        if random.random() < nodes.m:
+            nodes.bool_from_real()
+        if random.random() < nodes.v:
+            nodes.real_and_int()
+        if random.random() < nodes.r:
+            nodes.new_BV()
+        if random.random() < nodes.t:
+            nodes.BV_from_BV()
+        if random.random() < nodes.u:
+            nodes.bool_from_BV()
+        if random.random() < 0.33:
+            nodes.bool_from_bool()
+
+    upp_b = nodes.num_bool()
+    n_variables, n_clauses = Ratio(1, upp_b, 5)
+    bank = nodes.bool_sample(n_variables)
+    clauses = Clauses(bank, n_clauses)
+    clauses.new_dist_cnfs()
+
+def CNFexp_fuzz():
+    n_push = 0
+    n_pop = 0
+
+    nodes = Nodes()
+    nodes.set_random_logic()
+
+    for i in range(200):
+
+        if n_push > n_pop:
+            if random.random() < 0.1:
+                nodes.pop()
+                n_pop += 1
+            elif random.random() < 0.1:
+                nodes.push()
+                n_push += 1
+        if n_push == n_pop:
+            if random.random() < 0.1:
+                nodes.push()
+                n_push += 1
+
+        if random.random() < 0.2:
+            prob = random.random()
+            if prob < nodes.a:
+                nodes.newSort()
+            elif prob < nodes.b:
+                nodes.varUSort()
+            elif prob < nodes.c:
+                nodes.bool_from_usort()
+    
+        if random.random() < 0.33:
+            nodes.new_bool()
+        if random.random() < nodes.ni:
+            nodes.new_int()
+        if random.random() < nodes.e:
+            nodes.int_from_int()
+        if random.random() < nodes.f:
+            nodes.bool_from_int()
+        if random.random() < nodes.g:
+            nodes.new_real()
+        if random.random() < nodes.h:
+            nodes.real_from_real()
+        if random.random() < nodes.m:
+            nodes.bool_from_real()
+        if random.random() < nodes.v:
+            nodes.real_and_int()
+        if random.random() < nodes.r:
+            nodes.new_BV()
+        if random.random() < nodes.t:
+            nodes.BV_from_BV()
+        if random.random() < nodes.u:
+            nodes.bool_from_BV()
+        if random.random() < 0.33:
+            nodes.bool_from_bool()
+
+    upp_b = nodes.num_bool()
+    n_variables, n_clauses = Ratio(1, upp_b, 5)
+    bank = nodes.bool_sample(n_variables)
+    clauses = Clauses(bank, n_clauses)
+    clauses.new_cnfs()
+
+    assertions = random.randrange(0, 100)
+    while assertions > 0:
+
+        if random.random() < 0.5:
+            new_node = clauses.cnf_choice()
+        else:
+            new_node = clauses.node_from_cnf()
+
+        if random.random() < 0.6:
+            print('(assert {})'.format(new_node))
+            assertions -= 1
+
+        if random.random() < 0.2:
+            node1, node2 = clauses.bin_node()
+            print('(assert {})'.format(node1))
+            print('(assert {})'.format(node2))
+            assertions -= 2
+
+        if random.random() < 0.05:
+            print('(check-sat)')
+
+CNFexp_fuzz()
 
 print("(check-sat)")
 print("(exit)")
