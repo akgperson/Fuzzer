@@ -334,6 +334,12 @@ class Nodes:
         self.d[Int()] = []
         self.d[Real()] = []
 
+        #dictionary of number of all nodes ever created
+        self.dict = OrderedDict()
+        self.dict[Bool()] = 0
+        self.dict[Int()] = 0
+        self.dict[Real()] = 0
+
         self.initial_ints = a_ints
         self.initial_reals = a_reals
 
@@ -347,6 +353,7 @@ class Nodes:
         for i in range(self.n_vars):
             self.d[Bool()].append(Var_Bool(i)) 
             print('(declare-const {} Bool)'.format(Var_Bool(i)))
+            self.dict[Bool()] += 1
         if self.initial_ints == 1:
             for i in range(self.n_ints):
                 if random.random() < 0.5:
@@ -355,6 +362,7 @@ class Nodes:
                 else:   
                     val = random.randint(0, 100)
                     self.d[Int()].append(val)
+                self.dict[Int()] += 1
         if self.initial_reals == 1:
             for i in range(self.n_reals):
                 if random.random() < 0.5:
@@ -363,6 +371,7 @@ class Nodes:
                 else:
                     new_real = random_real()
                     self.d[Real()].append(new_real)
+                self.dict[Real()] += 1
     
     def push(self):
         print('(push 1)')
@@ -396,6 +405,7 @@ class Nodes:
             current_sort = UnIntSort(n_unintsorts)
             print('(declare-sort {} 0)'.format(current_sort))
             self.d[current_sort] = []
+            self.dict[current_sort] = 0
         else:
             pass
     
@@ -409,6 +419,7 @@ class Nodes:
             n = len(self.d[current_sort])
             self.d[current_sort].append(Var_UnIntSort(current_sort, n))
             print('(declare-const {} {})'.format(Var_UnIntSort(current_sort, n), current_sort))
+            self.dict[current_sort] += 1
 
     def bool_from_usort(self):
         ops = []
@@ -429,13 +440,15 @@ class Nodes:
                 new_bool = '(= {})'.format(items)
             else:
                 new_bool = '(distinct {})'.format(items)
-            self.d[Bool()].append(new_bool)            
+            self.d[Bool()].append(new_bool)         
+            self.dict[Bool()] += 1   
 
     def new_bool(self):
         new_var = Var_Bool(self.n_vars)
         print('(declare-const {} Bool)'.format(new_var))
         self.n_vars += 1
         self.d[Bool()].append(new_var)
+        self.dict[Bool()] += 1   
 
     def new_int(self):
         if random.random() < 0.3:
@@ -446,6 +459,7 @@ class Nodes:
         else:
             new_int = random.randint(0, 1000)
             self.d[Int()].append(new_int)
+        self.dict[Int()] += 1
 
     def int_from_int(self):
         p = random.random()
@@ -461,6 +475,7 @@ class Nodes:
             for i in range(n):
                 operand += (" " + str(random.choice(self.d[Int()])))
             self.d[Int()].append(Op(random.choice(IntNOp), operand))
+        self.dict[Int()] += 1
 
     def bool_from_int(self):
         #can you choose multiple operands? chainable?
@@ -469,6 +484,7 @@ class Nodes:
         new_bool = Op(random.choice(IRNBoolOp), operand)
         self.d[Bool()].append(new_bool)
         #want to add possibility of asserting this bool here?
+        self.dict[Bool()] += 1
 
     def new_real(self):
         if random.random() < 0.5:
@@ -478,6 +494,7 @@ class Nodes:
         else:
             new_real = random_real()
             self.d[Real()].append(new_real)
+        self.dict[Real()] += 1
 
     def real_from_real(self):
         chance = random.random()
@@ -493,6 +510,7 @@ class Nodes:
             for i in range(x):
                 operands += (" " + str(random.choice(self.d[Real()])))
             self.d[Real()].append(Op(random.choice(RealNOp), operands))
+        self.dict[Real()] += 1
 
     def bool_from_real(self):
         #n-array or binary?
@@ -503,15 +521,19 @@ class Nodes:
         new_bool = Op(random.choice(IRNBoolOp), operands)
         self.d[Bool()].append(new_bool)
         #give possibility of asserting this new bool here?
+        self.dict[Bool()] += 1
     
     def real_and_int(self):
         chance = random.randint(1, 3)
         if chance == 1:
             self.d[Real()].append(Op("to_real", random.choice(self.d[Int()])))
+            self.dict[Real()] += 1
         elif chance == 2:
             self.d[Int()].append(Op("to_int", random.choice(self.d[Real()])))
+            self.dict[Int()] += 1
         else:
             self.d[Bool()].append(Op("is_int", random.choice(self.d[Real()])))
+            self.dict[Bool()] += 1
 
     def new_BV(self):
         if random.random() < 0.25:
@@ -519,15 +541,19 @@ class Nodes:
             bv_sort = BV(width)
             if bv_sort not in self.d.keys():
                 self.d[bv_sort] = [] 
+                self.dict[bv_sort] = 0
             const = Var_BV(width, len(self.d[bv_sort])) 
             print('(declare-const {} (_ BitVec {}))'.format(const, width))
             self.d[bv_sort].append(const) 
+            self.dict[bv_sort] += 1
         else:
             bv, width = random_BV()
             bv_sort = BV(width)
             if bv_sort not in self.d.keys():
                 self.d[bv_sort] = []
+                self.dict[bv_sort] = 0
             self.d[bv_sort].append(bv)
+            self.dict[bv_sort] += 1
 
     def BV_from_BV(self):
         options = []
@@ -546,7 +572,9 @@ class Nodes:
                 bv_sort = BV(width)
                 if bv_sort not in self.d.keys():
                     self.d[bv_sort] = []
+                    self.dict[bv_sort] = 0
                 self.d[bv_sort].append(new_BV) 
+                self.dict[bv_sort] += 1
 
             elif prob < 0.1: #repeat
                 i = random.randint(1, 10)
@@ -556,12 +584,15 @@ class Nodes:
                 bv_sort = BV(width)
                 if bv_sort not in self.d.keys():
                     self.d[bv_sort] = []
+                    self.dict[bv_sort] = 0
                 self.d[bv_sort].append(new_BV) 
+                self.dict[bv_sort] += 1
 
             elif prob < 0.2: #unary, extract
                 if random.random() < 0.5: #unary
                     new_BV = Op(random.choice(Un_BV_BV), random.choice(self.d[s]))
                     self.d[s].append(new_BV)
+                    self.dict[s] += 1
                 else: #extract
                     width = s.w
                     parameter1 = random.randrange(0, width)
@@ -572,7 +603,9 @@ class Nodes:
                     bv_sort = BV(new_width)
                     if bv_sort not in self.d.keys():
                         self.d[bv_sort] = []
+                        self.dict[bv_sort] = 0
                     self.d[bv_sort].append(new_BV) 
+                    self.dict[bv_sort] += 1
 
             elif prob < 0.3:
                 i = random.randint(0, 10)
@@ -586,7 +619,9 @@ class Nodes:
                     bv_sort = BV(width)
                     if bv_sort not in self.d.keys():
                         self.d[bv_sort] = []
+                        self.dict[bv_sort] = 0
                     self.d[bv_sort].append(new_BV) 
+                    self.dict[bv_sort] += 1
                 else:
                     if random.random() < 0.5:
                         operator = "(_ rotate_left {})".format(i)
@@ -594,6 +629,7 @@ class Nodes:
                         operator = "(_ rotate_right {})".format(i)
                     new_BV = Op(operator, random.choice(self.d[s]))
                     self.d[s].append(new_BV)
+                    self.dict[s] += 1
 
             elif prob < 0.4: #n-array
                 a = random.randint(1, 3)
@@ -602,6 +638,7 @@ class Nodes:
                     operand += (" " + str(random.choice(self.d[s])))
                 new_BV = Op(random.choice(N_BV_BV), operand)
                 self.d[s].append(new_BV)
+                self.dict[s] += 1
 
             else: #binary
                 operand = str(random.choice(self.d[s])) + " " + str(random.choice(self.d[s]))
@@ -610,9 +647,12 @@ class Nodes:
                 if operator == "bvcomp":
                     if BV(1) not in self.d.keys():
                         self.d[BV(1)] = []
+                        self.dict[BV(1)] = 0
                     self.d[BV(1)].append(new_BV)
+                    self.dict[BV(1)] += 1
                 else:
                     self.d[s].append(new_BV)
+                    self.dict[s] += 1
 
     def bool_from_BV(self):
         options = []
@@ -631,6 +671,7 @@ class Nodes:
                     operand += (" " + str(random.choice(self.d[s])))
                 new_bool = Op(random.choice(N_BV_Bool), operand)
             self.d[Bool()].append(new_bool)
+            self.dict[Bool()] += 1
 
     def bool_from_bool(self):
         p = random.randint(1, 7)
@@ -651,6 +692,7 @@ class Nodes:
                 operands += (" " + str(random.choice(self.d[Bool()])))
             new_bool = Op(random.choice(NarOp), operands)
         self.d[Bool()].append(new_bool)
+        self.dict[Bool()] += 1
         return new_bool
 
     def bool_choice(self):
@@ -665,6 +707,11 @@ class Nodes:
         for x in bool_idx:
             sample.append(self.d[Bool()][x])
         return sample
+
+    def boolean_stats(self):
+        for key in self.dict:
+            print('; number {} created: {}'.format(key, self.dict[key]))
+        #print something for all nodes used in boolean nodes, number nodes used in asserted boolean nodes
 
 UnOp = ["not"]
 BiOp = ["=>"]
@@ -747,6 +794,8 @@ def bool_fuzz(*arg):
     
         if random.random() < 0.05:
             print('(check-sat)')
+
+    nodes.boolean_stats()
 
 def cnf_fuzz(*arg):
     n_push = 0
@@ -956,6 +1005,7 @@ bool_fuzz()
 #parser = argparse.ArgumentParser()
 #parser.add_argument('--', dest='action', action='store_const', const=)
 
+#want command line option to choose function to call with default (if no command specified) being to call bool_fuzz, also have as a command the logic to set where if specified is used as argument for the functoin called as in strategy(logic) where if no logic specified function is called with no arguments as in strategy()
 #to set a particular logic call the function for the strategy you want with the argument of the number corresponding to the correct logic you want. Like bool_fuzz(1) for logic ALL
 
 print("(check-sat)")
