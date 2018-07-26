@@ -1001,12 +1001,20 @@ def CNFexp_fuzz(*arg):
         if random.random() < 0.05:
             print('(check-sat)')
 
-bool_fuzz()
-#parser = argparse.ArgumentParser()
-#parser.add_argument('--', dest='action', action='store_const', const=)
-
 #want command line option to choose function to call with default (if no command specified) being to call bool_fuzz, also have as a command the logic to set where if specified is used as argument for the functoin called as in strategy(logic) where if no logic specified function is called with no arguments as in strategy()
 #to set a particular logic call the function for the strategy you want with the argument of the number corresponding to the correct logic you want. Like bool_fuzz(1) for logic ALL
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--strategy', dest='strategy', default='bool', type=str)
+args = parser.parse_args()
+if args.strategy == 'bool':
+    bool_fuzz()
+if args.strategy == 'cnf':
+    cnf_fuzz()
+if args.strategy == 'ncnf':
+    ncnf_fuzz()
+if args.strategy == 'CNFexp':
+    CNFexp_fuzz()
 
 print("(check-sat)")
 print("(exit)")
