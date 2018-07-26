@@ -141,7 +141,7 @@ def find(s, ch):
 def replace_idx(s, index, replacement):
     return '{}{}{}'.format(s[:index], replacement, s[index+1:])
 
-def set_logic(*arg):
+def set_logic(logic):
     a=0.33 #newSort
     b=0.66 #varUSort
     c=1 #bool_from_usort
@@ -157,66 +157,68 @@ def set_logic(*arg):
     u=0.33 #bool_from_BV
     add_reals = 0
     add_ints = 0
-    
-    if len(arg) == 1:
-        p_logic = arg[0]
-    else:
-        p_logic = random.randint(1, 10)
 
-    if p_logic == 1:
+    logic_options = ['ALL', 'QF_ABV', 'QF_BV', 'QF_AUFBV', 'QF_NIA', 'QF_NRA', 'QF_UF', 'QF_UFNRA', 'QF_UFNIA', 'QF_UFBV']
+    
+    if logic == 'random':
+        logic_choice = random.choice(logic_options)
+    else:
+        logic_choice = logic
+
+    if logic_choice == 'ALL':
         print('(set-logic ALL)')
         print('(set-option :incremental true)')
 
         add_reals = 1
         add_ints = 1
 
-    elif p_logic == 2:
+    elif logic_choice == 'QF_ABV':
         print('(set-logic QF_ABV)')
         print('(set-option :incremental true)')
         a, b, c, ni, e, f, g, h, m, v = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 
 
-    elif p_logic == 3:
+    elif logic_choice == 'QF_BV':
         print('(set-logic QF_BV)')
         print('(set-option :incremental true)')
         a, b, c, ni, e, f, g, h, m, v = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
 
-    elif p_logic == 4:
+    elif logic_choice == 'QF_AUFBV':
         print('(set-logic QF_AUFBV)')
         print('(set-option :incremental true)')
         ni, e, f, g, h, m, v = -1, -1, -1, -1, -1, -1, -1
 
-    elif p_logic == 5:
+    elif logic_choice == 'QF_NIA':
         print('(set-logic QF_NIA)')
         print('(set-option :incremental true)')
         a, b, c, g, h, m, v, r, t, u = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
 
         add_ints = 1
 
-    elif p_logic == 6:
+    elif logic_choice == 'QF_NRA':
         print('(set-logic QF_NRA)')
         print('(set-option :incremental true)')
         a, b, c, ni, e, f, v, r, t, u = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
 
         add_reals = 1
 
-    elif p_logic == 7:
+    elif logic_choice == 'QF_UF':
         print('(set-logic QF_UF)')
         print('(set-option :incremental true)')
         ni, e, f, g, h, m, v, r, t, u = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
 
-    elif p_logic == 8:
+    elif logic_choice == 'QF_UFBV':
         print('(set-logic QF_UFBV)')
         print('(set-option :incremental true)')
         ni, e, f, g, h, m, v = -1, -1, -1, -1, -1, -1, -1
 
-    elif p_logic == 9:
+    elif logic_choice == 'QF_UFNRA':
         print('(set-logic QF_UFNRA)')
         print('(set-option :incremental true)')
         ni, e, f, v, r, t, u = -1, -1, -1, -1, -1, -1, -1
 
         add_reals = 1
 
-    elif p_logic == 10:
+    elif logic_choice == 'QF_UFNIA':
         print('(set-logic QF_UFNIA)')
         print('(set-option :incremental true)')
         g, h, m, v, r, t, u = -1, -1, -1, -1, -1, -1, -1
@@ -729,11 +731,11 @@ Bin_BV_Bool = ["bvult", "bvule", "bvugt", "bvuge", "bvslt", "bvsle", "bvsgt", "b
 N_BV_Bool = ["=", "distinct"]
 
 
-def bool_fuzz(*arg):
+def bool_fuzz(logic):
     n_push = 0
     n_pop = 0
 
-    a, b, c, ni, e, f, g, h, m, v, r, t, u, add_ints, add_reals = set_logic(*arg)
+    a, b, c, ni, e, f, g, h, m, v, r, t, u, add_ints, add_reals = set_logic(logic)
     nodes = Nodes(add_ints, add_reals)
 
     assertions = random.randrange(0, 100)
@@ -797,11 +799,11 @@ def bool_fuzz(*arg):
 
     nodes.boolean_stats()
 
-def cnf_fuzz(*arg):
+def cnf_fuzz(logic):
     n_push = 0
     n_pop = 0
 
-    a, b, c, ni, e, f, g, h, m, v, r, t, u, add_ints, add_reals = set_logic(*arg)
+    a, b, c, ni, e, f, g, h, m, v, r, t, u, add_ints, add_reals = set_logic(logic)
     nodes = Nodes(add_ints, add_reals)
 
     for i in range(200):
@@ -858,11 +860,11 @@ def cnf_fuzz(*arg):
     clauses = Clauses(bank, n_clauses)
     clauses.new_cnfs()
 
-def ncnf_fuzz(*arg):
+def ncnf_fuzz(logic):
     n_push = 0
     n_pop = 0
 
-    a, b, c, ni, e, f, g, h, m, v, r, t, u, add_ints, add_reals = set_logic(*arg)
+    a, b, c, ni, e, f, g, h, m, v, r, t, u, add_ints, add_reals = set_logic(logic)
     nodes = Nodes(add_ints, add_reals)
 
     for i in range(200):
@@ -919,11 +921,11 @@ def ncnf_fuzz(*arg):
     clauses = Clauses(bank, n_clauses)
     clauses.new_dist_cnfs()
 
-def CNFexp_fuzz(*arg):
+def CNFexp_fuzz(logic):
     n_push = 0
     n_pop = 0
 
-    a, b, c, ni, e, f, g, h, m, v, r, t, u, add_ints, add_reals = set_logic(*arg)
+    a, b, c, ni, e, f, g, h, m, v, r, t, u, add_ints, add_reals = set_logic(logic)
     nodes = Nodes(add_ints, add_reals)
 
     for i in range(200):
@@ -1006,15 +1008,16 @@ def CNFexp_fuzz(*arg):
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--strategy', dest='strategy', default='bool', type=str)
+parser.add_argument('--logic', dest='logic', default='random', type=str)
 args = parser.parse_args()
 if args.strategy == 'bool':
-    bool_fuzz()
+    bool_fuzz(args.logic)
 if args.strategy == 'cnf':
-    cnf_fuzz()
+    cnf_fuzz(args.logic)
 if args.strategy == 'ncnf':
-    ncnf_fuzz()
+    ncnf_fuzz(args.logic)
 if args.strategy == 'CNFexp':
-    CNFexp_fuzz()
+    CNFexp_fuzz(args.logic)
 
 print("(check-sat)")
 print("(exit)")
