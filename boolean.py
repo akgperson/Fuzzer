@@ -141,6 +141,14 @@ def find(s, ch):
 def replace_idx(s, index, replacement):
     return '{}{}{}'.format(s[:index], replacement, s[index+1:])
 
+def set_options():
+    tf = ['true', 'false']
+    print('(set-option :incremental true)')
+    l = random.randint(0, len(solver_options))
+    to_set = random.sample(solver_options, l)
+    for i in to_set:
+        print('(set-option :{} {})'.format(i, random.choice(tf)))
+
 def set_logic(logic):
     a=0.33 #newSort
     b=0.66 #varUSort
@@ -167,62 +175,57 @@ def set_logic(logic):
 
     if logic_choice == 'ALL':
         print('(set-logic ALL)')
-        print('(set-option :incremental true)')
-
+        set_options()
         add_reals = 1
         add_ints = 1
 
     elif logic_choice == 'QF_ABV':
         print('(set-logic QF_ABV)')
-        print('(set-option :incremental true)')
+        set_options()
         a, b, c, ni, e, f, g, h, m, v = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 
 
     elif logic_choice == 'QF_BV':
         print('(set-logic QF_BV)')
-        print('(set-option :incremental true)')
+        set_options()
         a, b, c, ni, e, f, g, h, m, v = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
 
     elif logic_choice == 'QF_AUFBV':
         print('(set-logic QF_AUFBV)')
-        print('(set-option :incremental true)')
+        set_options()
         ni, e, f, g, h, m, v = -1, -1, -1, -1, -1, -1, -1
 
     elif logic_choice == 'QF_NIA':
         print('(set-logic QF_NIA)')
-        print('(set-option :incremental true)')
+        set_options()
         a, b, c, g, h, m, v, r, t, u = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
-
         add_ints = 1
 
     elif logic_choice == 'QF_NRA':
         print('(set-logic QF_NRA)')
-        print('(set-option :incremental true)')
+        set_options()
         a, b, c, ni, e, f, v, r, t, u = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
-
         add_reals = 1
 
     elif logic_choice == 'QF_UF':
         print('(set-logic QF_UF)')
-        print('(set-option :incremental true)')
+        set_options()
         ni, e, f, g, h, m, v, r, t, u = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
 
     elif logic_choice == 'QF_UFBV':
         print('(set-logic QF_UFBV)')
-        print('(set-option :incremental true)')
+        set_options()
         ni, e, f, g, h, m, v = -1, -1, -1, -1, -1, -1, -1
 
     elif logic_choice == 'QF_UFNRA':
         print('(set-logic QF_UFNRA)')
-        print('(set-option :incremental true)')
+        set_options()
         ni, e, f, v, r, t, u = -1, -1, -1, -1, -1, -1, -1
-
         add_reals = 1
 
     elif logic_choice == 'QF_UFNIA':
         print('(set-logic QF_UFNIA)')
-        print('(set-option :incremental true)')
+        set_options()
         g, h, m, v, r, t, u = -1, -1, -1, -1, -1, -1, -1
-
         add_ints = 1
 
     return a, b, c, ni, e, f, g, h, m, v, r, t, u, add_ints, add_reals
@@ -730,6 +733,9 @@ Un_BV_BV = ["bvnot", "bvneg"]
 Bin_BV_Bool = ["bvult", "bvule", "bvugt", "bvuge", "bvslt", "bvsle", "bvsgt", "bvsge"]
 N_BV_Bool = ["=", "distinct"]
 
+solver_options = ['quiet', 'stats,' 'verbose', 'copyright', 'help', 'seed', 'show-config', 'version', 'strict-parsing', 'cpu-time', 'hard-limit', 'produce-assertions', 'produce-models', 'approx-branch-depth', 'arith-no-partial-fun', 'arith-prop-clauses', 'arith-rewrite-equalities', 'collect-pivot-stats', 'cut-all-bounded', 'dio-decomps', 'dio-repeat', 'dio-solver', 'dio-turns', 'fc-penalties', 'lemmas-on-replay-failure', 'maxCutsInContext', 'miplib-trick', 'new-prop', 'nl-ext', 'nl-ext-ent-conf', 'nl-ext-factor', 'nl-ext-inc-prec', 'nl-ext-purify', 'nl-ext-rbound', 'nl-ext-rewrite', 'nl-ext-split-zero', 'nl-ext-tf-tplanes', 'nl-ext-tplanes', 'nl-ext-tplanes-interleave', 'pb-rewrites', 'pp-assert-max-sub-size', 'replay-early-close-depth', 'replay-failure-penalty', 'replay-lemma-reject-cut', 'replay-num-err-penalty', 'replay-reject-cut', 'replay-soi-major-threshold', 'replay-soi-major-threshold-pen', 'replay-soi-minor-threshold', 'replay-soi-minor-threshold-pen', 'restrict-pivots', 'revert-arith-models-on-unsat', 'rewrite-divk', 'rr-turns', 'se-solve-int', 'snorm-infer-eq', 'soi-qe', 'use-approx', 'use-fcsimplex', 'use-soi', 'arrays-config', 'arrays-eager-index', 'arrays-eager-lemmas', 'arrays-lazy-rintro1', 'arrays-model-based', 'arrays-optimize-linear', 'arrays-prop', 'arrays-reduce-sharing', 'arrays-weak-equiv', 'parse-only', 'preprocess-only', 'print-success', 'stats-every-query', 'stats-hide-zeros', 'smtlib-strict', 'bitblast-aig', 'bool-to-bv', 'bv-abstraction', 'bv-alg-extf', 'bv-algebraic-budget', 'bv-algebraic-solver', 'bv-div-zero-const', 'bv-eager-explanations', 'bv-eq-solver', 'bv-extract-arith', 'bv-gauss-elim', 'bv-inequality-solver', 'bv-intro-pow2', 'bv-lazy-reduce-extf', 'bv-lazy-rewrite-extf', 'bv-propagate', 'bv-quick-xplain', 'bv-skolemize', 'bv-to-bool', 'cdt-bisimilar', 'dt-binary-split', 'dt-blast-splits', 'dt-cyclic', 'dt-force-assignment', 'dt-infer-as-lemmas', 'dt-ref-sk-intro', 'dt-rewrite-error-sel', 'dt-share-sel', 'dt-use-testers', 'sygus-eval-builtin', 'sygus-fair-max', 'sygus-opt1', 'sygus-sym-break', 'sygus-sym-break-dynamic', 'sygus-sym-break-lazy', 'sygus-sym-break-pbe', 'sygus-sym-break-rlv', 'decision-use-weight', 'eager-type-checking', 'print-expr-types', 'type-checking', 'idl-rewrite-equalities', 'continued-execution', 'early-exit', 'fallback-sequential', 'incremental-parallel', 'interactive', 'segv-spin', 'show-debug-tags', 'show-trace-tags', 'wait-to-join', 'mmap', 'aggressive-core-min', 'allow-empty-dependencies', 'fewer-preprocessing-holes', 'lfsc-letification', 'minisat-dump-dimacs', 'minisat-elimination', 'refine-conflicts', 'ag-miniscope-quant', 'cbqi', 'cbqi-all', 'cbqi-bv', 'cbqi-bv-concat-inv', 'cbqi-bv-interleave-value', 'cbqi-bv-linear', 'cbqi-bv-rm-extract', 'cbqi-full', 'cbqi-innermost', 'cbqi-lit-dep', 'cbqi-midpoint', 'cbqi-min-bounds', 'cbqi-model', 'cbqi-multi-inst', 'cbqi-nested-qe', 'cbqi-nopt', 'cbqi-prereg-inst', 'cbqi-recurse', 'cbqi-repeat-lit', 'cbqi-round-up-lia', 'cbqi-sat']
+solver_options += ['cbqi-use-inf-int', 'cbqi-use-inf-real', 'cegqi', 'cegqi-si-abort', 'cegqi-si-partial', 'cegqi-si-reconstruct', 'cegqi-si-reconstruct-const', 'cegqi-si-sol-min-core', 'cegqi-si-sol-min-inst', 'cond-rewrite-quant', 'cond-var-split-agg-quant', 'cond-var-split-quant', 'conjecture-filter-active-terms', 'conjecture-filter-canonical', 'conjecture-filter-model', 'conjecture-gen', 'conjecture-gen-uee-intro', 'conjecture-no-filter', 'dt-stc-ind', 'dt-var-exp-quant', 'e-matching', 'elim-ext-arith-quant', 'elim-taut-quant', 'finite-model-find', 'fmf-bound', 'fmf-bound-int', 'fmf-bound-lazy', 'fmf-empty-sorts', 'fmf-fmc-simple', 'fmf-fresh-dc', 'fmf-fun', 'fmf-fun-rlv', 'fmf-inst-engine', 'fmf-inst-gen', 'fmf-inst-gen-one-quant-per-round', 'fs-interleave', 'full-saturate-quant', 'full-saturate-quant-rd', 'global-negate', 'ho-matching', 'ho-matching-var-priority', 'ho-merge-term-db', 'increment-triggers', 'infer-arith-trigger-eq', 'infer-arith-trigger-eq-exp', 'inst-level-input-only', 'inst-no-entail', 'inst-no-model-true', 'inst-prop', 'inst-when-strict-interleave', 'inst-when-tc-first', 'int-wf-ind', 'ite-dtt-split-quant', 'local-t-ext', 'lte-partial-inst', 'lte-restrict-inst-closure', 'macros-quant', 'mbqi-interleave', 'mbqi-one-inst-per-round', 'mbqi-one-quant-per-round', 'miniscope-quant', 'miniscope-quant-fv', 'multi-trigger-cache', 'multi-trigger-linear', 'multi-trigger-priority', 'multi-trigger-when-single', 'partial-triggers', 'pre-skolem-quant', 'pre-skolem-quant-agg', 'pre-skolem-quant-nested', 'prenex-quant-user', 'pure-th-triggers', 'purify-dt-triggers', 'purify-triggers', 'qcf-all-conflict', 'qcf-eager-check-rd', 'qcf-eager-test', 'qcf-nested-conflict', 'qcf-skip-rd', 'qcf-tconstraint', 'qcf-vo-exp', 'quant-alpha-equiv', 'quant-anti-skolem', 'quant-cf', 'quant-epr', 'quant-epr-match', 'quant-fun-wd', 'quant-ind', 'quant-model-ee', 'quant-split', 'register-quant-body-terms', 'relevant-triggers', 'rewrite-rules', 'rr-one-inst-per-round', 'strict-triggers', 'sygus-add-const-grammar', 'sygus-auto-unfold', 'sygus-bool-ite-return-const', 'sygus-eval-unfold', 'sygus-eval-unfold-bool', 'sygus-ext-rew', 'sygus-grammar-norm', 'sygus-inference', 'sygus-inv-templ-when-sg', 'sygus-min-grammar', 'sygus-pbe', 'sygus-qe-preproc', 'sygus-ref-eval', 'sygus-repair-const', 'sygus-rr', 'sygus-rr-synth', 'sygus-rr-synth-accel', 'sygus-rr-synth-check', 'sygus-rr-synth-filter-cong', 'sygus-rr-synth-filter-match', 'sygus-rr-synth-filter-order', 'sygus-rr-verify', 'sygus-rr-verify-abort', 'sygus-sample-grammar', 'sygus-stream', 'sygus-templ-embed-grammar', 'sygus-unif', 'term-db-mode', 'track-inst-lemmas', 'trigger-active-sel', 'trigger-sel', 'var-elim-quant', 'var-ineq-elim-quant', 'sep-check-neg', 'sep-child-refine', 'sep-deq-c', 'sep-exp', 'sep-min-refine', 'sep-pre-skolem-emp', 'sets-ext', 'sets-infer-as-lemmas', 'sets-proxy-lemmas', 'sets-rel-eager', 'abstract-values', 'bitblast-step', 'bv-sat-conflict-step', 'check-models', 'check-proofs']
+solver_options += ['check-synth-sol', 'check-unsat-cores', 'cnf-step', 'decision-step', 'dump-instantiations', 'dump-models', 'dump-proofs', 'dump-synth', 'dump-unsat-cores', 'dump-unsat-cores-full', 'ext-rew-prep', 'ext-rew-prep-agg', 'force-no-limit-cpu-while-dump', 'ite-simp', 'lemma-step', 'model-u-dt-enum', 'omit-dont-cares', 'on-repeat-ite-simp', 'parse-step', 'preprocess-step', 'produce-assignments', 'produce-unsat-assumptions', 'produce-unsat-cores', 'proof', 'quantifier-step', 'repeat-simp', 'restart-step', 'rewrite-apply-to-const', 'rewrite-step', 'sat-conflict-step', 'simp-ite-compress', 'simp-ite-hunt-zombies', 'simp-with-care', 'sort-inference', 'static-learning', 'sygus-print-callbacks', 'symmetry-breaker-exp', 'theory-check-step', 'unconstrained-simp', 'no-simplification', 'strings-abort-loop', 'strings-binary-csp', 'strings-check-entail-len', 'strings-eager', 'strings-eager-len', 'strings-eit', 'strings-exp', 'strings-fmf', 'strings-guess-model', 'strings-infer-as-lemmas', 'strings-infer-sym', 'strings-inm', 'strings-lazy-pp', 'strings-len-geqz', 'strings-len-norm', 'strings-lprop-csp', 'strings-min-prefix-explain', 'strings-opt1', 'strings-opt2', 'strings-print-ascii', 'strings-process-loop', 'strings-rexplain-lemmas', 'strings-sp-emp', 'strings-uf-reduct', 'assign-function-values', 'condense-function-values', 'symmetry-breaker', 'uf-ho', 'uf-ho-ext', 'uf-ss-clique-splits', 'uf-ss-eager-split', 'uf-ss-fair', 'uf-ss-fair-monotone', 'uf-ss-regions', 'uf-ss-totality', 'uf-ss-totality-sym-break']
 
 def bool_fuzz(logic):
     n_push = 0
