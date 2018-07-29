@@ -1,3 +1,4 @@
+import time
 import math
 import argparse
 import random
@@ -1017,7 +1018,10 @@ def CNFexp_fuzz(logic):
 parser = argparse.ArgumentParser()
 parser.add_argument('--strategy', dest='strategy', default='bool', type=str)
 parser.add_argument('--logic', dest='logic', default='random', type=str)
+parser.add_argument('--seed', dest='seed', default=None)
 args = parser.parse_args()
+if args.seed != None:
+    random.seed(args.seed)
 if args.strategy == 'bool':
     bool_fuzz(args.logic)
 if args.strategy == 'cnf':
