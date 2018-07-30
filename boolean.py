@@ -917,16 +917,16 @@ class Nodes:
         for key in self.dict:
             print('; number {} created: {}'.format(key, self.dict[key]))
 
-            if type(key) is Var_Bool or type(key) is Bool_Op: 
-                co_bool += self.count[key]
-            if type(key) is Var_Int or type(key) is Int_Op or isinstance(key, int):
-                co_int += self.count[key]
-            if type(key) is Var_Real or type(key) is Real_Op or (isinstance(key, str) and isinstance(key[0], int)): 
-                co_real += self.count[key]
-            if type(key) is Var_UnIntSort or type(key) is USort_Op: 
-                co_unintsort += self.count[key]
-            if type(key) is Var_BV or type(key) is BV_Op or (isinstance(key, str) and (key[0] == '#' or key[0] == '(')):
-                co_bv += self.count[key]
+            if type(key) is Bool: 
+                co_bool += self.dict[key]
+            if type(key) is Int:
+                co_int += self.dict[key]
+            if type(key) is Real: 
+                co_real += self.dict[key]
+            if type(key) is UnIntSort: 
+                co_unintsort += self.dict[key]
+            if type(key) is BV:
+                co_bv += self.dict[key]
 
         for key in self.count:
             print('; {} nodes created using {}'.format(self.count[key], key))
@@ -936,22 +936,48 @@ class Nodes:
         count_real = 0
         count_unintsort = 0
         count_bv = 0
+
+        thl_int = 0
+        thl_real = 0
+        thl_usort = 0
+        thl_bv = 0
+        c_thl_int = 0
+        c_thl_real = 0
+        c_thl_usort = 0
+        c_thl_bv = 0
+
         for key in self.count:
             if type(key) is Var_Bool or type(key) is Bool_Op: 
                 count_bool += self.count[key]
             if type(key) is Var_Int or type(key) is Int_Op or isinstance(key, int):
                 count_int += self.count[key]
+                if type(key) is Int_Op:
+                    thl_int += 1
+                    c_thl_int += self.count[key]
             if type(key) is Var_Real or type(key) is Real_Op or (isinstance(key, str) and isinstance(key[0], int)): 
                 count_real += self.count[key]
+                if type(key) is Real_Op:
+                    thl_real += 1
+                    c_thl_real += self.count[key]
             if type(key) is Var_UnIntSort or type(key) is USort_Op: 
                 count_unintsort += self.count[key]
+                if type(key) is USort_Op:
+                    thl_usort += 1
+                    c_thl_usort += self.count[key]
             if type(key) is Var_BV or type(key) is BV_Op or (isinstance(key, str) and (key[0] == '#' or key[0] == '(')):
                 count_bv += self.count[key]
-        print('; variables and nodes of boolean sort where used {} times where {} where created'.format(count_bool, co_bool))
-        print('; variables and nodes of integer sort where used {} times where {} where created'.format(count_int, co_int))
-        print('; variables and nodes of real sort where used {} times where {} where created'.format(count_real, co_real))
-        print('; variables and nodes of uninterpreted sort where used {} times where {} where created'.format(count_unintsort, co_unintsort))
-        print('; variables and nodes of bit vector sort where used {} times where {} where created'.format(count_bv, co_bv))
+                if type(key) is BV_Op:
+                    thl_bv += 1
+                    c_thl_bv += self.count[key]
+        print('; variables and nodes of boolean sort were used {} times where {} were created'.format(count_bool, co_bool))
+        print('; variables and nodes of integer sort were used {} times where {} were created'.format(count_int, co_int))
+        print('; variables and nodes of real sort were used {} times where {} were created'.format(count_real, co_real))
+        print('; variables and nodes of uninterpreted sort were used {} times where {} were created'.format(count_unintsort, co_unintsort))
+        print('; variables and nodes of bit vector sort were used {} times where {} were created'.format(count_bv, co_bv))
+        print('; {} integer theory literals used {} times'.format(thl_int, c_thl_int))
+        print('; {} real theory literals used {} times'.format(thl_real, c_thl_real))
+        print('; {} usort theory literals used {} times'.format(thl_usort, c_thl_usort))
+        print('; {} bit vector theory literals used {} times'.format(thl_bv, c_thl_bv))
 
 UnOp = ["not"]
 BiOp = ["=>"]
