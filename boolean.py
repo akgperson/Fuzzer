@@ -12,10 +12,17 @@ class Op:
     def __repr__(self):
         return '({} {})'.format(self.node, self.expr)
 
+    def __eq__(self, other):
+        return isinstance(other, Op) and self.expr == other.expr and self.node == other.node
+
+    def __hash__(self):
+        return hash((self.expr, self.node))
+
 class Var:
     def __init__(self, sort, n):
         self.sort = sort
         self.n = n
+
     def __repr__(self):
         return str(self.sort) + str(self.n)
 
@@ -23,53 +30,92 @@ class Var_Bool(Var):
     def __init__(self, n):
         Var.__init__(self, 'v', n)
 
+    def __eq__(self, other):
+        return isinstance(other, Var_Bool) and self.n == other.n
+
+    def __hash__(self):
+        return hash((self.sort, self.n))
+
 class Var_Int(Var):
     def __init__(self, n):
         Var.__init__(self, 'i', n)
+
+    def __eq__(self, other):
+        return isinstance(other, Var_Int) and self.n == other.n
+
+    def __hash__(self):
+        return hash((self.sort, self.n))
 
 class Var_Real(Var):
     def __init__(self, n):
         Var.__init__(self, 'r', n)
 
+    def __eq__(self, other):
+        return isinstance(other, Var_Real) and self.n == other.n
+
+    def __hash__(self):
+        return hash((self.sort, self.n))
+
 class Var_UnIntSort(Var):
     def __init__(self, sort, n):
         Var.__init__(self, sort, n)
+
     def __repr__(self):
         return '{}-{}'.format(self.sort, self.n)
+
+    def __eq__(self, other):
+        return isinstance(other, Var_UnIntSort) and self.n == other.n and self.sort == other.sort
+
+    def __hash__(self):
+        return hash((self.sort, self.n))
 
 class Var_BV(Var):
     def __init__(self, sort, n):
         Var.__init__(self, sort, n)
+
     def __repr__(self):
         return 'bv_{}-{}'.format(self.sort, self.n)
+
+    def __eq__(self, other):
+        return isinstance(other, Var_BV) and self.n == other.n and self.sort == other.sort
+
+    def __hash__(self):
+        return hash((self.sort, self.n))
 
 class Sort:
     def __init__(self, sort):
         self.sort = sort        
+
     def __repr__(self):
         return str(self.sort)
 
 class Bool(Sort):
     def __init__(self):
         Sort.__init__(self, 'bool')
+
     def __eq__(self, other):
         return isinstance(other, Bool)
+
     def __hash__(self):
         return hash(self.sort)
 
 class Int(Sort):
     def __init__(self):
         Sort.__init__(self, 'int')
+
     def __eq__(self, other):
         return isinstance(other, Int)
+
     def __hash__(self):
         return hash(self.sort)
         
 class Real(Sort):
     def __init__(self):
         Sort.__init__(self, 'real')
+
     def __eq__(self, other):
         return isinstance(other, Real)
+
     def __hash__(self):
         return hash(self.sort)
 
@@ -77,10 +123,13 @@ class UnIntSort(Sort):
     def __init__(self, n):
         Sort.__init__(self, 'S')
         self.n = n
+
     def __repr__(self):
         return str(self.sort) + str(self.n)
+
     def __eq__(self, other):
         return isinstance(other, UnIntSort) and self.n == other.n
+
     def __hash__(self):
         return hash((self.sort, self.n))
 
@@ -88,10 +137,13 @@ class BV(Sort):
     def __init__(self, w):
         Sort.__init__(self, 'BV')
         self.w = w
+
     def __repr__(self):
         return str(self.sort) + str(self.w)
+
     def __eq__(self, other):
         return isinstance(other, BV) and self.w == other.w
+
     def __hash__(self):
         return hash((self.sort, self.w))
 
@@ -348,6 +400,8 @@ class Nodes:
         self.dict[Int()] = 0
         self.dict[Real()] = 0
 
+        self.count = OrderedDict()
+
         self.initial_ints = a_ints
         self.initial_reals = a_reals
 
@@ -362,23 +416,28 @@ class Nodes:
             self.d[Bool()].append(Var_Bool(i)) 
             print('(declare-const {} Bool)'.format(Var_Bool(i)))
             self.dict[Bool()] += 1
+            self.count[Var_Bool(i)] = 0
         if self.initial_ints == 1:
             for i in range(self.n_ints):
                 if random.random() < 0.5:
                     self.d[Int()].append(Var_Int(i))
                     print('(declare-const {} Int)'.format(Var_Int(i)))
+                    self.count[Var_Int(i)] = 0
                 else:   
                     val = random.randint(0, 100)
                     self.d[Int()].append(val)
+                    self.count[val] = 0
                 self.dict[Int()] += 1
         if self.initial_reals == 1:
             for i in range(self.n_reals):
                 if random.random() < 0.5:
                     self.d[Real()].append(Var_Real(i))
                     print('(declare-const {} Real)'.format(Var_Real(i)))
+                    self.count[Var_Real(i)] = 0
                 else:
                     new_real = random_real()
                     self.d[Real()].append(new_real)
+                    self.count[new_real] = 0
                 self.dict[Real()] += 1
     
     def push(self):
@@ -426,6 +485,7 @@ class Nodes:
             current_sort = random.choice(options)
             n = len(self.d[current_sort])
             self.d[current_sort].append(Var_UnIntSort(current_sort, n))
+            self.count[Var_UnIntSort(current_sort, n)] = 0
             print('(declare-const {} {})'.format(Var_UnIntSort(current_sort, n), current_sort))
             self.dict[current_sort] += 1
 
@@ -441,14 +501,19 @@ class Nodes:
         if len(options) > 0:
             current_sort = random.choice(options)
             n_items = random.randrange(1, 5)
-            items = str(random.choice(self.d[current_sort]))
+            par = random.choice(self.d[current_sort])
+            items = str(par)
+            self.count[par] += 1
             for i in range(n_items):
-                items += (" " + str(random.choice(self.d[current_sort])))
+                par = random.choice(self.d[current_sort])
+                self.count[par] += 1
+                items += (" " + str(par))
             if random.random() < 0.5:
                 new_bool = '(= {})'.format(items)
             else:
                 new_bool = '(distinct {})'.format(items)
             self.d[Bool()].append(new_bool)         
+            self.count[new_bool] = 0
             self.dict[Bool()] += 1   
 
     def new_bool(self):
@@ -456,6 +521,7 @@ class Nodes:
         print('(declare-const {} Bool)'.format(new_var))
         self.n_vars += 1
         self.d[Bool()].append(new_var)
+        self.count[new_var] = 0
         self.dict[Bool()] += 1   
 
     def new_int(self):
@@ -464,83 +530,136 @@ class Nodes:
             print('(declare-const {} Int)'.format(new_int))
             self.n_ints += 1
             self.d[Int()].append(new_int)
+            self.count[new_int] = 0
         else:
             new_int = random.randint(0, 1000)
             self.d[Int()].append(new_int)
+            self.count[new_int] = 0
         self.dict[Int()] += 1
 
     def int_from_int(self):
         p = random.random()
         if p < 0.4:
-            self.d[Int()].append(Op(random.choice(IntUnOp), random.choice(self.d[Int()])))
+            par = random.choice(self.d[Int()])
+            new_int = Op(random.choice(IntUnOp), par)
+            self.d[Int()].append(new_int)
+            self.count[new_int] = 0
+            self.count[par] += 1
         elif p < 0.66:
-            operand = str(random.choice(self.d[Int()])) 
-            operand += (" " + str(random.choice(self.d[Int()])))
-            self.d[Int()].append(Op(random.choice(IntBinOp), operand))    
+            par1 = random.choice(self.d[Int()])
+            operand = str(par1)
+            par2 = random.choice(self.d[Int()])
+            operand += (" " + str(par2))
+            new_int = Op(random.choice(IntBinOp), operand)
+            self.d[Int()].append(new_int)
+            self.count[par1] += 1     
+            self.count[par2] += 1    
+            self.count[new_int] = 0    
         else:
-            operand = str(random.choice(self.d[Int()]))
+            par = random.choice(self.d[Int()])
+            self.count[par] += 1
+            operand = str(par)
             n = random.randrange(1, 5)
             for i in range(n):
-                operand += (" " + str(random.choice(self.d[Int()])))
-            self.d[Int()].append(Op(random.choice(IntNOp), operand))
+                par = random.choice(self.d[Int()])
+                self.count[par] += 1
+                operand += (" " + str(par))
+            new_int = Op(random.choice(IntNOp), operand)
+            self.d[Int()].append(new_int)
+            self.count[new_int] = 0
         self.dict[Int()] += 1
 
     def bool_from_int(self):
         #can you choose multiple operands? chainable?
-        operand = str(random.choice(self.d[Int()])) 
-        operand += (" " + str(random.choice(self.d[Int()])))
+        par = random.choice(self.d[Int()])
+        operand = str(par)
+        self.count[par] += 1 
+        par = random.choice(self.d[Int()])
+        self.count[par] += 1 
+        operand += (" " + str(par))
         new_bool = Op(random.choice(IRNBoolOp), operand)
         self.d[Bool()].append(new_bool)
+        self.count[new_bool] = 0
         #want to add possibility of asserting this bool here?
         self.dict[Bool()] += 1
 
     def new_real(self):
         if random.random() < 0.5:
             self.d[Real()].append(Var_Real(self.n_reals))
+            self.count[Var_Real(self.n_reals)] = 0
             print('(declare-const {} Real)'.format(Var_Real(self.n_reals)))
             self.n_reals += 1
         else:
             new_real = random_real()
             self.d[Real()].append(new_real)
+            self.count[new_real] = 0
         self.dict[Real()] += 1
 
     def real_from_real(self):
         chance = random.random()
         if chance < 0.33: #unary
-            self.d[Real()].append(Op("-", random.choice(self.d[Real()])))
+            par = random.choice(self.d[Real()])
+            self.count[par] += 1
+            self.d[Real()].append(Op("-", par))
+            self.count[Op("-", par)] = 0
         elif chance < 0.67: #binary
-            operands = str(random.choice(self.d[Real()])) 
-            operands += (" " + str(random.choice(self.d[Real()])))
+            par = random.choice(self.d[Real()])
+            self.count[par] += 1
+            operands = str(par) 
+            par = random.choice(self.d[Real()])
+            self.count[par] += 1
+            operands += (" " + str(par))
             self.d[Real()].append(Op("/", operands))
+            self.count[Op("/", operands)] = 0
         else: #n-array
-            operands = str(random.choice(self.d[Real()]))
+            par = random.choice(self.d[Real()])
+            self.count[par] += 1
+            operands = str(par)
             x = random.randrange(1, 5)
             for i in range(x):
-                operands += (" " + str(random.choice(self.d[Real()])))
-            self.d[Real()].append(Op(random.choice(RealNOp), operands))
+                par = random.choice(self.d[Real()])
+                self.count[par] += 1
+                operands += (" " + str(par))
+            new_real = Op(random.choice(RealNOp), operands)
+            self.d[Real()].append(new_real)
+            self.count[new_real] = 0
         self.dict[Real()] += 1
 
     def bool_from_real(self):
         #n-array or binary?
-        operands = str(random.choice(self.d[Real()]))
+        par = random.choice(self.d[Real()])
+        self.count[par] += 1
+        operands = str(par)
         n_operands = random.randrange(1, 5)
         for i in range(n_operands):
-            operands += (" " + str(random.choice(self.d[Real()])))
+            par = random.choice(self.d[Real()])
+            self.count[par] += 1
+            operands += (" " + str(par))
         new_bool = Op(random.choice(IRNBoolOp), operands)
         self.d[Bool()].append(new_bool)
+        self.count[new_bool] = 0
         #give possibility of asserting this new bool here?
         self.dict[Bool()] += 1
     
     def real_and_int(self):
         chance = random.randint(1, 3)
         if chance == 1:
-            self.d[Real()].append(Op("to_real", random.choice(self.d[Int()])))
+            par = random.choice(self.d[Int()])
+            self.count[par] += 1
+            self.d[Real()].append(Op("to_real", par))
+            self.count[Op("to_real", par)] = 0
             self.dict[Real()] += 1
         elif chance == 2:
-            self.d[Int()].append(Op("to_int", random.choice(self.d[Real()])))
+            par = random.choice(self.d[Real()])
+            self.count[par] += 1
+            self.d[Int()].append(Op("to_int", par))
+            self.count[Op("to_int", par)] = 0
             self.dict[Int()] += 1
         else:
-            self.d[Bool()].append(Op("is_int", random.choice(self.d[Real()])))
+            par = random.choice(self.d[Real()])
+            self.count[par] += 1
+            self.d[Bool()].append(Op("is_int", par))
+            self.count[Op("is_int", par)] = 0
             self.dict[Bool()] += 1
 
     def new_BV(self):
@@ -553,6 +672,7 @@ class Nodes:
             const = Var_BV(width, len(self.d[bv_sort])) 
             print('(declare-const {} (_ BitVec {}))'.format(const, width))
             self.d[bv_sort].append(const) 
+            self.count[const] = 0
             self.dict[bv_sort] += 1
         else:
             bv, width = random_BV()
@@ -561,6 +681,7 @@ class Nodes:
                 self.d[bv_sort] = []
                 self.dict[bv_sort] = 0
             self.d[bv_sort].append(bv)
+            self.count[bv] = 0
             self.dict[bv_sort] += 1
 
     def BV_from_BV(self):
@@ -575,31 +696,42 @@ class Nodes:
             if prob < 0.05: #concat
                 s2 = random.choice(options)
                 width = s.w + s2.w
-                operand = str(random.choice(self.d[s])) + " " + str(random.choice(self.d[s2])) 
+                par1 = random.choice(self.d[s])
+                par2 = random.choice(self.d[s2])
+                self.count[par1] += 1
+                self.count[par2] += 1
+                operand = str(par1) + " " + str(par2) 
                 new_BV = Op("concat", operand)
                 bv_sort = BV(width)
                 if bv_sort not in self.d.keys():
                     self.d[bv_sort] = []
                     self.dict[bv_sort] = 0
                 self.d[bv_sort].append(new_BV) 
+                self.count[new_BV] = 0
                 self.dict[bv_sort] += 1
 
             elif prob < 0.1: #repeat
                 i = random.randint(1, 10)
                 width = i * s.w
                 operator = '(_ repeat {})'.format(i)
-                new_BV = Op(operator, random.choice(self.d[s])) 
+                par = random.choice(self.d[s])
+                self.count[par] += 1
+                new_BV = Op(operator, par) 
                 bv_sort = BV(width)
                 if bv_sort not in self.d.keys():
                     self.d[bv_sort] = []
                     self.dict[bv_sort] = 0
                 self.d[bv_sort].append(new_BV) 
+                self.count[new_BV] = 0
                 self.dict[bv_sort] += 1
 
             elif prob < 0.2: #unary, extract
                 if random.random() < 0.5: #unary
-                    new_BV = Op(random.choice(Un_BV_BV), random.choice(self.d[s]))
+                    par = random.choice(self.d[s])
+                    self.count[par] += 1
+                    new_BV = Op(random.choice(Un_BV_BV), par)
                     self.d[s].append(new_BV)
+                    self.count[new_BV] = 0
                     self.dict[s] += 1
                 else: #extract
                     width = s.w
@@ -607,12 +739,15 @@ class Nodes:
                     parameter2 = random.randint(0, parameter1)
                     operator = "(_ extract {} {})".format(parameter1, parameter2)
                     new_width = parameter1 - parameter2 + 1 
-                    new_BV = Op(operator, random.choice(self.d[s]))    
+                    par = random.choice(self.d[s])
+                    self.count[par] += 1
+                    new_BV = Op(operator, par)    
                     bv_sort = BV(new_width)
                     if bv_sort not in self.d.keys():
                         self.d[bv_sort] = []
                         self.dict[bv_sort] = 0
                     self.d[bv_sort].append(new_BV) 
+                    self.count[new_BV] = 0
                     self.dict[bv_sort] += 1
 
             elif prob < 0.3:
@@ -623,33 +758,48 @@ class Nodes:
                     else:
                         operator = "(_ sign_extend {})".format(i)
                     width = s.w + i
-                    new_BV = Op(operator, random.choice(self.d[s]))
+                    par = random.choice(self.d[s])
+                    self.count[par] += 1
+                    new_BV = Op(operator, par)
                     bv_sort = BV(width)
                     if bv_sort not in self.d.keys():
                         self.d[bv_sort] = []
                         self.dict[bv_sort] = 0
                     self.d[bv_sort].append(new_BV) 
+                    self.count[new_BV] = 0
                     self.dict[bv_sort] += 1
                 else:
                     if random.random() < 0.5:
                         operator = "(_ rotate_left {})".format(i)
                     else:
                         operator = "(_ rotate_right {})".format(i)
-                    new_BV = Op(operator, random.choice(self.d[s]))
+                    par = random.choice(self.d[s])
+                    self.count[par] += 1
+                    new_BV = Op(operator, par)
                     self.d[s].append(new_BV)
+                    self.count[new_BV] = 0
                     self.dict[s] += 1
 
             elif prob < 0.4: #n-array
                 a = random.randint(1, 3)
-                operand = str(random.choice(self.d[s]))
+                par = random.choice(self.d[s])
+                self.count[par] += 1
+                operand = str(par)
                 for i in range(a):
-                    operand += (" " + str(random.choice(self.d[s])))
+                    par = random.choice(self.d[s])
+                    self.count[par] += 1
+                    operand += (" " + str(par))
                 new_BV = Op(random.choice(N_BV_BV), operand)
                 self.d[s].append(new_BV)
+                self.count[new_BV] = 0
                 self.dict[s] += 1
 
             else: #binary
-                operand = str(random.choice(self.d[s])) + " " + str(random.choice(self.d[s]))
+                par1 = random.choice(self.d[s])
+                par2 = random.choice(self.d[s])
+                self.count[par1] += 1
+                self.count[par2] += 1
+                operand = str(par1) + " " + str(par2)
                 operator = random.choice(Bin_BV_BV)
                 new_BV = Op(operator, operand)
                 if operator == "bvcomp":
@@ -657,9 +807,11 @@ class Nodes:
                         self.d[BV(1)] = []
                         self.dict[BV(1)] = 0
                     self.d[BV(1)].append(new_BV)
+                    self.count[new_BV] = 0
                     self.dict[BV(1)] += 1
                 else:
                     self.d[s].append(new_BV)
+                    self.count[new_BV] = 0
                     self.dict[s] += 1
 
     def bool_from_BV(self):
@@ -670,36 +822,56 @@ class Nodes:
         if len(options) > 0:
             s = random.choice(options)
             if random.random() < 0.33:
-                operand = str(random.choice(self.d[s])) + " " + str(random.choice(self.d[s]))
+                par1 = random.choice(self.d[s])
+                par2 = random.choice(self.d[s])
+                self.count[par1] += 1
+                self.count[par2] += 1
+                operand = str(par1) + " " + str(par2)
                 new_bool = Op(random.choice(Bin_BV_Bool), operand)
             else:
-                operand = str(random.choice(self.d[s]))
+                par = random.choice(self.d[s])
+                self.count[par] += 1
+                operand = str(par)
                 n = random.randint(1, 4)
                 for i in range(n):
-                    operand += (" " + str(random.choice(self.d[s])))
+                    par = random.choice(self.d[s])
+                    self.count[par] += 1
+                    operand += (" " + str(par))
                 new_bool = Op(random.choice(N_BV_Bool), operand)
             self.d[Bool()].append(new_bool)
+            self.count[new_bool] = 0
             self.dict[Bool()] += 1
 
     def bool_from_bool(self):
         p = random.randint(1, 7)
         if p == 1:
             #pick Unary
-            new_bool = Op(random.choice(UnOp), random.choice(self.d[Bool()]))
+            par = random.choice(self.d[Bool()])
+            self.count[par] += 1
+            new_bool = Op(random.choice(UnOp), par)
         elif p == 2:
             #pick Binary
             operand = ""
-            operand = str(random.choice(self.d[Bool()]))
-            operand += (" " + str(random.choice(self.d[Bool()])))
+            par1 = random.choice(self.d[Bool()])
+            par2 = random.choice(self.d[Bool()])
+            self.count[par1] += 1
+            self.count[par2] += 1
+            operand = str(par1)
+            operand += (" " + str(par2))
             new_bool = Op(random.choice(BiOp), operand)
         else:    
             n_operands = random.randint(1, 10)
             operands = ""
-            operands = str(random.choice(self.d[Bool()]))
+            par = random.choice(self.d[Bool()])
+            self.count[par] += 1
+            operands = str(par)
             for i in range(n_operands):
-                operands += (" " + str(random.choice(self.d[Bool()])))
+                par = random.choice(self.d[Bool()])
+                self.count[par] += 1
+                operands += (" " + str(par))
             new_bool = Op(random.choice(NarOp), operands)
         self.d[Bool()].append(new_bool)
+        self.count[new_bool] = 0
         self.dict[Bool()] += 1
         return new_bool
 
@@ -719,7 +891,29 @@ class Nodes:
     def boolean_stats(self):
         for key in self.dict:
             print('; number {} created: {}'.format(key, self.dict[key]))
-        #print something for all nodes used in boolean nodes, number nodes used in asserted boolean nodes
+        for key in self.count:
+            print('; number nodes created using {}: {}'.format(key, self.count[key]))
+#        count_bool = 0
+#        count_int = 0
+#        count_real = 0
+#        count_unintsort = 0
+#        count_bv = 0
+#        for key in self.count:
+#            if type(key) is Var_Bool or type(key) is Bool_Op: 
+#                count_bool += self.count[key]
+#            if type(key) is Var_Int or type(key) is Int_Op:
+#                count_int += self.count[key]
+#            if type(key) is Var_Real or type(key) is Real_Op: 
+#                count_real += self.count[key]
+#            if type(key) is Var_UnIntSort or type(key) is USort_Op: 
+#                count_unintsort += self.count[key]
+#            if type(key) is Var_BV or type(key) is BV_Op:
+#                count_bv += self.count[key]
+#        print('variables and nodes of boolean sort where used {} times'.format(count_bool))
+#        print('variables and nodes of integer sort where used {} times'.format(count_int))
+#        print('variables and nodes of real sort where used {} times'.format(count_real))
+#        print('variables and nodes of uninterpreted sort where used {} times'.format(count_unintsort))
+#        print('variables and nodes of bit vector sort where used {} times'.format(count_bv))
 
 UnOp = ["not"]
 BiOp = ["=>"]
