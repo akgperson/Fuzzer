@@ -1057,6 +1057,9 @@ def cnf_fuzz(logic):
         if random.random() < 0.33:
             nodes.bool_from_bool()
 
+    print('; these states are for all nodes created, not necessarily all of these are used or part of the bool sample used to create the cnfs that are actually asserted')
+    nodes.boolean_stats()
+
     upp_b = nodes.num_bool()
     n_variables, n_clauses = Ratio(1, upp_b, 5)
     bank = nodes.bool_sample(n_variables)
@@ -1118,6 +1121,9 @@ def ncnf_fuzz(logic):
         if random.random() < 0.33:
             nodes.bool_from_bool()
 
+    print('; these states are for all nodes created, not necessarily all of these are used or part of the bool sample used to create the cnfs that are actually asserted')
+    nodes.boolean_stats()
+
     upp_b = nodes.num_bool()
     n_variables, n_clauses = Ratio(1, upp_b, 5)
     bank = nodes.bool_sample(n_variables)
@@ -1178,6 +1184,9 @@ def CNFexp_fuzz(logic):
             nodes.bool_from_BV()
         if random.random() < 0.33:
             nodes.bool_from_bool()
+
+    print('; these states are for all nodes created, not necessarily all of these are used or part of the bool sample used to create the cnfs that are actually asserted')
+    nodes.boolean_stats()
 
     upp_b = nodes.num_bool()
     n_variables, n_clauses = Ratio(1, upp_b, 5)
