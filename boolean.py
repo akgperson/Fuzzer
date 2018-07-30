@@ -1041,7 +1041,7 @@ def bool_fuzz(logic, want_stats):
     if want_stats == 1:
         nodes.boolean_stats()
 
-def cnf_fuzz(logic):
+def cnf_fuzz(logic, vcratio):
     n_push = 0
     n_pop = 0
 
@@ -1097,12 +1097,12 @@ def cnf_fuzz(logic):
             nodes.bool_from_bool()
 
     upp_b = nodes.num_bool()
-    n_variables, n_clauses = Ratio(1, upp_b, 5)
+    n_variables, n_clauses = Ratio(1, upp_b, vcratio)
     bank = nodes.bool_sample(n_variables)
     clauses = Clauses(bank, n_clauses)
     clauses.new_cnfs()
 
-def ncnf_fuzz(logic):
+def ncnf_fuzz(logic, vcratio):
     n_push = 0
     n_pop = 0
 
@@ -1158,12 +1158,12 @@ def ncnf_fuzz(logic):
             nodes.bool_from_bool()
 
     upp_b = nodes.num_bool()
-    n_variables, n_clauses = Ratio(1, upp_b, 5)
+    n_variables, n_clauses = Ratio(1, upp_b, vcratio)
     bank = nodes.bool_sample(n_variables)
     clauses = Clauses(bank, n_clauses)
     clauses.new_dist_cnfs()
 
-def CNFexp_fuzz(logic):
+def CNFexp_fuzz(logic, vcratio):
     n_push = 0
     n_pop = 0
 
@@ -1219,7 +1219,7 @@ def CNFexp_fuzz(logic):
             nodes.bool_from_bool()
 
     upp_b = nodes.num_bool()
-    n_variables, n_clauses = Ratio(1, upp_b, 5)
+    n_variables, n_clauses = Ratio(1, upp_b, vcratio)
     bank = nodes.bool_sample(n_variables)
     clauses = Clauses(bank, n_clauses)
     clauses.new_cnfs()
@@ -1250,20 +1250,24 @@ parser.add_argument('--strategy', dest='strategy', default='bool', type=str)
 parser.add_argument('--logic', dest='logic', default='random', type=str)
 parser.add_argument('--seed', dest='seed', default=None)
 parser.add_argument('--stats', action='store_true')
+parser.add_argument('--cnfratio', dest='ratio', default=5, type=int)
 args = parser.parse_args()
+
 if args.seed != None:
     random.seed(args.seed)
+
 want_stats = 0
 if args.stats == True:
     want_stats = 1
+
 if args.strategy == 'bool':
     bool_fuzz(args.logic, want_stats)
 if args.strategy == 'cnf':
-    cnf_fuzz(args.logic)
+    cnf_fuzz(args.logic, args.ratio)
 if args.strategy == 'ncnf':
-    ncnf_fuzz(args.logic)
+    ncnf_fuzz(args.logic, args.ratio)
 if args.strategy == 'CNFexp':
-    CNFexp_fuzz(args.logic)
+    CNFexp_fuzz(args.logic, args.ratio)
 
 print("(check-sat)")
 print("(exit)")
