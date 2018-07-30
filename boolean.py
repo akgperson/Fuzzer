@@ -972,7 +972,7 @@ boolean_solver_options = ['arith-no-partial-fun', 'arith-rewrite-equalities', 'c
 boolean_solver_options += ['fmf-bound', 'fmf-bound-int', 'fmf-bound-lazy', 'fmf-empty-sorts', 'fmf-fmc-simple', 'fmf-fresh-dc', 'fmf-fun', 'fmf-fun-rlv', 'fmf-inst-engine', 'fmf-inst-gen', 'fmf-inst-gen-one-quant-per-round', 'fs-interleave', 'full-saturate-quant', 'full-saturate-quant-rd', 'global-negate', 'ho-matching', 'ho-matching-var-priority', 'ho-merge-term-db', 'increment-triggers', 'infer-arith-trigger-eq', 'infer-arith-trigger-eq-exp', 'inst-level-input-only', 'inst-no-entail', 'inst-no-model-true', 'inst-prop', 'inst-when-strict-interleave', 'inst-when-tc-first', 'int-wf-ind', 'ite-dtt-split-quant', 'local-t-ext', 'lte-partial-inst', 'lte-restrict-inst-closure', 'macros-quant', 'mbqi-interleave', 'mbqi-one-inst-per-round', 'mbqi-one-quant-per-round', 'min-synth-sol', 'miniscope-quant', 'miniscope-quant-fv', 'multi-trigger-cache', 'multi-trigger-linear', 'multi-trigger-priority', 'multi-trigger-when-single', 'partial-triggers', 'pre-skolem-quant', 'pre-skolem-quant-agg', 'pre-skolem-quant-nested', 'prenex-quant-user', 'pure-th-triggers', 'purify-dt-triggers', 'purify-triggers', 'qcf-all-conflict', 'qcf-eager-check-rd', 'qcf-eager-test', 'qcf-nested-conflict', 'qcf-skip-rd', 'qcf-tconstraint', 'qcf-vo-exp', 'quant-alpha-equiv', 'quant-anti-skolem', 'quant-cf', 'quant-epr', 'quant-epr-match', 'quant-fun-wd', 'quant-ind', 'quant-model-ee', 'quant-split', 'register-quant-body-terms', 'relational-triggers', 'relevant-triggers', 'rewrite-rules', 'rr-one-inst-per-round', 'strict-triggers', 'sygus-add-const-grammar', 'sygus-auto-unfold', 'sygus-bool-ite-return-const', 'sygus-crepair-abort', 'sygus-eval-opt', 'sygus-eval-unfold', 'sygus-eval-unfold-bool', 'sygus-ext-rew', 'sygus-grammar-norm', 'sygus-inference', 'sygus-inv-templ-when-sg', 'sygus-min-grammar', 'sygus-pbe', 'sygus-pbe-multi-fair', 'sygus-qe-preproc', 'sygus-ref-eval', 'sygus-repair-const', 'sygus-rr', 'sygus-rr-synth', 'sygus-rr-synth-accel', 'sygus-rr-synth-check', 'sygus-rr-synth-filter-cong', 'sygus-rr-synth-filter-match', 'sygus-rr-synth-filter-order', 'sygus-rr-verify', 'sygus-rr-verify-abort', 'sygus-sample-fp-uniform', 'sygus-sample-grammar', 'sygus-stream', 'sygus-templ-embed-grammar', 'sygus-unif', 'sygus-verify-subcall', 'track-inst-lemmas', 'var-elim-quant', 'var-ineq-elim-quant', 'sep-check-neg', 'sep-child-refine', 'sep-deq-c', 'sep-exp', 'sep-min-refine', 'sep-pre-skolem-emp', 'sets-ext', 'sets-infer-as-lemmas', 'sets-proxy-lemmas', 'sets-rel-eager', 'abstract-values', 'check-models', 'check-proofs', 'check-synth-sol', 'check-unsat-cores', 'cpu-time', 'dump-instantiations', 'dump-models', 'dump-proofs', 'dump-synth', 'dump-unsat-cores', 'dump-unsat-cores-full', 'ext-rew-prep', 'ext-rew-prep-agg', 'force-no-limit-cpu-while-dump', 'hard-limit', 'incremental', 'ite-simp', 'model-u-dt-enum', 'omit-dont-cares', 'on-repeat-ite-simp', 'produce-assertions', 'produce-assignments', 'produce-models', 'produce-unsat-assumptions', 'produce-unsat-cores', 'proof', 'repeat-simp']
 boolean_solver_options += ['rewrite-apply-to-const', 'simp-ite-compress', 'simp-with-care', 'solve-real-as-int=N', 'sort-inference', 'static-learning', 'sygus-print-callbacks', 'symmetry-breaker-exp', 'synth-rr-prep', 'synth-rr-prep-ext-rew', 'unconstrained-simp', 'strings-abort-loop', 'strings-binary-csp', 'strings-check-entail-len', 'strings-eager', 'strings-eager-len', 'strings-eit', 'strings-exp', 'strings-fmf', 'strings-guess-model', 'strings-infer-as-lemmas', 'strings-infer-sym', 'strings-inm', 'strings-lazy-pp', 'strings-len-geqz', 'strings-len-norm', 'strings-lprop-csp', 'strings-min-prefix-explain', 'strings-print-ascii', 'strings-process-loop', 'strings-rexplain-lemmas', 'strings-sp-emp', 'strings-uf-reduct', 'assign-function-values', 'condense-function-values', 'symmetry-breaker', 'uf-ho', 'uf-ho-ext', 'uf-ss-clique-splits', 'uf-ss-eager-split', 'uf-ss-fair', 'uf-ss-fair-monotone', 'uf-ss-regions', 'uf-ss-totality', 'uf-ss-totality-sym-break', 'solve-real-as-int'] 
 
-def bool_fuzz(logic):
+def bool_fuzz(logic, want_stats):
     n_push = 0
     n_pop = 0
 
@@ -1038,7 +1038,8 @@ def bool_fuzz(logic):
         if random.random() < 0.05:
             print('(check-sat)')
 
-    nodes.boolean_stats()
+    if want_stats == 1:
+        nodes.boolean_stats()
 
 def cnf_fuzz(logic):
     n_push = 0
@@ -1248,11 +1249,15 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--strategy', dest='strategy', default='bool', type=str)
 parser.add_argument('--logic', dest='logic', default='random', type=str)
 parser.add_argument('--seed', dest='seed', default=None)
+parser.add_argument('--stats', action='store_true')
 args = parser.parse_args()
 if args.seed != None:
     random.seed(args.seed)
+want_stats = 0
+if args.stats == True:
+    want_stats = 1
 if args.strategy == 'bool':
-    bool_fuzz(args.logic)
+    bool_fuzz(args.logic, want_stats)
 if args.strategy == 'cnf':
     cnf_fuzz(args.logic)
 if args.strategy == 'ncnf':
