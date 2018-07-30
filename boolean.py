@@ -928,9 +928,6 @@ class Nodes:
             if type(key) is BV:
                 co_bv += self.dict[key]
 
-        for key in self.count:
-            print('; {} nodes created using {}'.format(self.count[key], key))
-
         count_bool = 0
         count_int = 0
         count_real = 0
@@ -978,6 +975,10 @@ class Nodes:
         print('; {} real theory literals used {} times'.format(thl_real, c_thl_real))
         print('; {} usort theory literals used {} times'.format(thl_usort, c_thl_usort))
         print('; {} bit vector theory literals used {} times'.format(thl_bv, c_thl_bv))
+
+        for key in self.count:
+            print('; {} nodes created using {}'.format(self.count[key], key))
+
 
 UnOp = ["not"]
 BiOp = ["=>"]
