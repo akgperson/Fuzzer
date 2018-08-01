@@ -38,6 +38,10 @@ class BV_Op(Op):
     def __init__(self, node, expr):
         Op.__init__(self, node, expr)
 
+class Arr_Op(Op):
+    def __init__(self, node, expr):
+        Op.__init__(self, node, expr)
+
 class Var:
     def __init__(self, sort, n):
         self.sort = sort
@@ -101,6 +105,20 @@ class Var_BV(Var):
 
     def __hash__(self):
         return hash((self.sort, self.n))
+
+class Var_Arr(Var):
+    def __init__(self, sort_index, sort_element, n):
+        Var.__init__(self, sort_index, n)
+        self.sort_element = sort_element
+
+    def __repr__(self):
+        return 'arr-{}_{}-{}'.format(self.sort, self.sort_element, self.n)
+
+    def __eq__(self, other):
+        return isinstance(other, Var_Arr) and self.n == other.n and self.sort == other.sort and self.sort_element == other.sort_element
+
+    def __hash__(self):
+        return hash((self.sort, self.sort_element, self.n))
 
 class Sort:
     def __init__(self, sort):
@@ -166,6 +184,21 @@ class BV(Sort):
 
     def __hash__(self):
         return hash((self.sort, self.w))
+
+class Arr(Sort):
+    def __init__(self, sort_index, sort_element):
+        Sort.__init__(self, 'Arr')
+        self.sort_index = sort_index
+        self.sort_element = sort_element
+
+    def __repr__(self):
+        return '{}-{}_{}'.format(self.sort, self.sort_index, self.sort_element)
+
+    def __eq__(self, other):
+        return isinstance(other, Arr) and self.sort_index == other.sort_index and self.sort_element == other.sort_element
+
+    def __hash__(self):
+        return hash((self.sort, self.sort_index, self.sort_element))
 
 def random_real():
     y = 0
@@ -238,10 +271,11 @@ def set_logic(logic):
     r=0.33 #new_BV
     t=0.33 #BV_from_BV
     u=0.33 #bool_from_BV
+    gen_arr=0.33 #arrays of any sort
     add_reals = 0
     add_ints = 0
 
-    logic_options = ['ALL', 'QF_ABV', 'QF_BV', 'QF_AUFBV', 'QF_NIA', 'QF_NRA', 'QF_UF', 'QF_UFNRA', 'QF_UFNIA', 'QF_UFBV']
+    logic_options = ['ALL', 'QF_ABV', 'QF_BV', 'QF_AUFBV', 'QF_NIA', 'QF_NRA', 'QF_UF', 'QF_UFNRA', 'QF_UFNIA', 'QF_UFBV', 'QF_AX']
     
     if logic == 'random':
         logic_choice = random.choice(logic_options)
@@ -257,53 +291,59 @@ def set_logic(logic):
     elif logic_choice == 'QF_ABV':
         print('(set-logic QF_ABV)')
         set_options()
-        a, b, c, ni, e, f, g, h, m, v = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 
+        a, b, c, ni, e, f, g, h, m, v, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 
 
     elif logic_choice == 'QF_BV':
         print('(set-logic QF_BV)')
         set_options()
-        a, b, c, ni, e, f, g, h, m, v = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+        a, b, c, ni, e, f, g, h, m, v, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
 
     elif logic_choice == 'QF_AUFBV':
         print('(set-logic QF_AUFBV)')
         set_options()
-        ni, e, f, g, h, m, v = -1, -1, -1, -1, -1, -1, -1
+        ni, e, f, g, h, m, v, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1
 
     elif logic_choice == 'QF_NIA':
         print('(set-logic QF_NIA)')
         set_options()
-        a, b, c, g, h, m, v, r, t, u = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+        a, b, c, g, h, m, v, r, t, u, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
         add_ints = 1
 
     elif logic_choice == 'QF_NRA':
         print('(set-logic QF_NRA)')
         set_options()
-        a, b, c, ni, e, f, v, r, t, u = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+        a, b, c, ni, e, f, v, r, t, u, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
         add_reals = 1
 
     elif logic_choice == 'QF_UF':
         print('(set-logic QF_UF)')
         set_options()
-        ni, e, f, g, h, m, v, r, t, u = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+        ni, e, f, g, h, m, v, r, t, u, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
 
     elif logic_choice == 'QF_UFBV':
         print('(set-logic QF_UFBV)')
         set_options()
-        ni, e, f, g, h, m, v = -1, -1, -1, -1, -1, -1, -1
+        ni, e, f, g, h, m, v, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1
 
     elif logic_choice == 'QF_UFNRA':
         print('(set-logic QF_UFNRA)')
         set_options()
-        ni, e, f, v, r, t, u = -1, -1, -1, -1, -1, -1, -1
+        ni, e, f, v, r, t, u, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1
         add_reals = 1
 
     elif logic_choice == 'QF_UFNIA':
         print('(set-logic QF_UFNIA)')
         set_options()
-        g, h, m, v, r, t, u = -1, -1, -1, -1, -1, -1, -1
+        g, h, m, v, r, t, u, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1
         add_ints = 1
 
-    return a, b, c, ni, e, f, g, h, m, v, r, t, u, add_ints, add_reals
+    elif logic_choice == 'QF_AX':
+        print('(set-logic QF_AX)')
+        set_options()
+        add_reals = 1
+        add_ints = 1
+
+    return a, b, c, ni, e, f, g, h, m, v, r, t, u, gen_arr, add_ints, add_reals
 
 class Clauses():
     def __init__(self, b, nc):
@@ -862,6 +902,73 @@ class Nodes:
             self.count[new_bool] = 0
             self.dict[Bool()] += 1
 
+    def new_array(self):
+        ops = []
+        for o in list(self.d):
+            if type(o) is not Arr:
+                ops.append(o)
+            if type(o) is Arr:
+                if len(self.d[o]) > 0:
+                    ops.append(o)
+        isort = random.choice(ops)
+        esort = random.choice(ops)
+        arrsort = Arr(isort, esort)
+        self.d[arrsort] = []
+        self.dict[arrsort] = 0
+        n = len(self.d[arrsort])
+        new_arr = Var_Arr(isort, esort, n)
+        print('(declare-const {} {})'.format(new_arr, arrsort))
+        self.d[arrsort].append(new_arr)
+        self.count[new_arr] = 0
+        self.dict[arrsort] += 1   
+
+    def array_from_array(self):
+        ops = []
+        options = []
+        for o in list(self.d):
+            if type(o) is Arr:
+                ops.append(o)
+        for things in ops:
+            if len(self.d[things]) > 0 and len(self.d[things.sort_index]) > 0 and len(self.d[things.sort_element]) > 0:
+                options.append(things)
+        if len(options) > 0:
+            current_sort = random.choice(options)
+            isort = current_sort.sort_index
+            esort = current_sort.sort_element
+            par = random.choice(self.d[current_sort])
+            self.count[par] += 1
+            par2 = random.choice(self.d[isort])
+            par3 = random.choice(self.d[esort])
+            self.count[par2] += 1
+            self.count[par3] += 1
+            items = '{} {} {}'.format(par, par2, par3) 
+            new_arr = Arr_Op('store', items)
+            self.d[current_sort].append(new_arr)         
+            self.count[new_arr] = 0
+            self.dict[current_sort] += 1   
+
+    def bool_from_array(self):
+        ops = []
+        options = []
+        for o in list(self.d):
+            if type(o) is Arr:
+                ops.append(o)
+        for things in ops:
+            if len(self.d[things]) > 0 and len(self.d[things.sort_index]) > 0:
+                options.append(things)
+        if len(options) > 0:
+            current_sort = random.choice(options)
+            isort = current_sort.sort_index
+            par = random.choice(self.d[current_sort])
+            par2 = random.choice(self.d[isort])
+            self.count[par] += 1
+            self.count[par2] += 1
+            expression = '{} {}'.format(par, par2)
+            new_bool = Bool_Op('select', expression)
+            self.d[Bool()].append(new_bool)
+            self.count[new_bool] = 0
+            self.dict[Bool()] += 1
+
     def bool_from_bool(self):
         p = random.randint(1, 7)
         if p == 1:
@@ -1003,7 +1110,7 @@ def bool_fuzz(logic, want_stats):
     n_push = 0
     n_pop = 0
 
-    a, b, c, ni, e, f, g, h, m, v, r, t, u, add_ints, add_reals = set_logic(logic)
+    a, b, c, ni, e, f, g, h, m, v, r, t, u, gen_arr, add_ints, add_reals = set_logic(logic)
     nodes = Nodes(add_ints, add_reals)
 
     assertions = random.randrange(0, 100)
@@ -1052,6 +1159,12 @@ def bool_fuzz(logic, want_stats):
             nodes.BV_from_BV()
         if random.random() < u:
             nodes.bool_from_BV()
+        if random.random() < gen_arr:
+            nodes.new_array()
+        if random.random() < gen_arr:
+            nodes.array_from_array()
+        if random.random() < gen_arr:
+            nodes.bool_from_array()
 
         if random.random() < 0.5:
             new_node = nodes.bool_choice()    
@@ -1072,7 +1185,7 @@ def cnf_fuzz(logic, vcratio):
     n_push = 0
     n_pop = 0
 
-    a, b, c, ni, e, f, g, h, m, v, r, t, u, add_ints, add_reals = set_logic(logic)
+    a, b, c, ni, e, f, g, h, m, v, r, t, u, gen_arr, add_ints, add_reals = set_logic(logic)
     nodes = Nodes(add_ints, add_reals)
 
     for i in range(200):
@@ -1122,6 +1235,12 @@ def cnf_fuzz(logic, vcratio):
             nodes.bool_from_BV()
         if random.random() < 0.33:
             nodes.bool_from_bool()
+        if random.random() < gen_arr:
+            nodes.new_array()
+        if random.random() < gen_arr:
+            nodes.array_from_array()
+        if random.random() < gen_arr:
+            nodes.bool_from_array()
 
     upp_b = nodes.num_bool()
     n_variables, n_clauses = Ratio(1, upp_b, vcratio)
@@ -1133,7 +1252,7 @@ def ncnf_fuzz(logic, vcratio):
     n_push = 0
     n_pop = 0
 
-    a, b, c, ni, e, f, g, h, m, v, r, t, u, add_ints, add_reals = set_logic(logic)
+    a, b, c, ni, e, f, g, h, m, v, r, t, u, gen_arr, add_ints, add_reals = set_logic(logic)
     nodes = Nodes(add_ints, add_reals)
 
     for i in range(200):
@@ -1183,6 +1302,12 @@ def ncnf_fuzz(logic, vcratio):
             nodes.bool_from_BV()
         if random.random() < 0.33:
             nodes.bool_from_bool()
+        if random.random() < gen_arr:
+            nodes.new_array()
+        if random.random() < gen_arr:
+            nodes.array_from_array()
+        if random.random() < gen_arr:
+            nodes.bool_from_array()
 
     upp_b = nodes.num_bool()
     n_variables, n_clauses = Ratio(1, upp_b, vcratio)
@@ -1194,7 +1319,7 @@ def CNFexp_fuzz(logic, vcratio):
     n_push = 0
     n_pop = 0
 
-    a, b, c, ni, e, f, g, h, m, v, r, t, u, add_ints, add_reals = set_logic(logic)
+    a, b, c, ni, e, f, g, h, m, v, r, t, u, gen_arr, add_ints, add_reals = set_logic(logic)
     nodes = Nodes(add_ints, add_reals)
 
     for i in range(200):
@@ -1244,6 +1369,12 @@ def CNFexp_fuzz(logic, vcratio):
             nodes.bool_from_BV()
         if random.random() < 0.33:
             nodes.bool_from_bool()
+        if random.random() < gen_arr:
+            nodes.new_array()
+        if random.random() < gen_arr:
+            nodes.array_from_array()
+        if random.random() < gen_arr:
+            nodes.bool_from_array()
 
     upp_b = nodes.num_bool()
     n_variables, n_clauses = Ratio(1, upp_b, vcratio)
