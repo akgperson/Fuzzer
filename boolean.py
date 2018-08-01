@@ -569,9 +569,9 @@ class Nodes:
                 self.count[par] += 1
                 items += (" " + str(par))
             if random.random() < 0.5:
-                new_bool = '(= {})'.format(items)
+                new_bool = Bool_Op('=', items)
             else:
-                new_bool = '(distinct {})'.format(items)
+                new_bool = Bool_Op('distinct', items) 
             self.d[Bool()].append(new_bool)         
             self.count[new_bool] = 0
             self.dict[Bool()] += 1   
@@ -948,26 +948,51 @@ class Nodes:
             self.dict[current_sort] += 1   
 
     def bool_from_array(self):
-        ops = []
-        options = []
-        for o in list(self.d):
-            if type(o) is Arr:
-                ops.append(o)
-        for things in ops:
-            if len(self.d[things]) > 0 and len(self.d[things.sort_index]) > 0:
-                options.append(things)
-        if len(options) > 0:
-            current_sort = random.choice(options)
-            isort = current_sort.sort_index
-            par = random.choice(self.d[current_sort])
-            par2 = random.choice(self.d[isort])
-            self.count[par] += 1
-            self.count[par2] += 1
-            expression = '{} {}'.format(par, par2)
-            new_bool = Bool_Op('select', expression)
-            self.d[Bool()].append(new_bool)
-            self.count[new_bool] = 0
-            self.dict[Bool()] += 1
+        if random.random() < 0.5:
+            ops = []
+            options = []
+            for o in list(self.d):
+                if type(o) is Arr:
+                    ops.append(o)
+            for things in ops:
+                if len(self.d[things]) > 0 and len(self.d[things.sort_index]) > 0:
+                    options.append(things)
+            if len(options) > 0:
+                current_sort = random.choice(options)
+                isort = current_sort.sort_index
+                par = random.choice(self.d[current_sort])
+                par2 = random.choice(self.d[isort])
+                self.count[par] += 1
+                self.count[par2] += 1
+                expression = '{} {}'.format(par, par2)
+                new_bool = Bool_Op('select', expression)
+                self.d[Bool()].append(new_bool)
+                self.count[new_bool] = 0
+                self.dict[Bool()] += 1
+        else:
+            ops = []
+            options = []
+            for o in list(self.d):
+                if type(o) is Arr:
+                    ops.append(o)
+            for things in ops:
+                if len(self.d[things]) > 0:
+                    options.append(things)
+            if len(options) > 0:
+                current_sort = random.choice(options)
+                second_sort = random.choice(options)
+                par = random.choice(self.d[current_sort])
+                par2 = random.choice(self.d[second_sort])
+                self.count[par] += 1
+                self.count[par2] += 1
+                expression = '{} {}'.format(par, par2)
+                if random.random() < 0.5:
+                    new_bool = Bool_Op('=', expression)
+                else:
+                    new_bool = Bool_Op('distinct', expression)
+                self.d[Bool()].append(new_bool)
+                self.count[new_bool] = 0
+                self.dict[Bool()] += 1
 
     def bool_from_bool(self):
         p = random.randint(1, 7)
