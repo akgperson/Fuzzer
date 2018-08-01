@@ -980,16 +980,18 @@ class Nodes:
                     options.append(things)
             if len(options) > 0:
                 current_sort = random.choice(options)
-                second_sort = random.choice(options)
                 par = random.choice(self.d[current_sort])
-                par2 = random.choice(self.d[second_sort])
                 self.count[par] += 1
-                self.count[par2] += 1
-                expression = '{} {}'.format(par, par2)
+                operand = str(par)
+                n = random.randint(1, 4)
+                for i in range(n):
+                    par = random.choice(self.d[current_sort])
+                    self.count[par] += 1
+                    operand += (" " + str(par))
                 if random.random() < 0.5:
-                    new_bool = Bool_Op('=', expression)
+                    new_bool = Bool_Op('=', operand)
                 else:
-                    new_bool = Bool_Op('distinct', expression)
+                    new_bool = Bool_Op('distinct', operand)
                 self.d[Bool()].append(new_bool)
                 self.count[new_bool] = 0
                 self.dict[Bool()] += 1
