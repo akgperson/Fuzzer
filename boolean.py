@@ -1048,6 +1048,7 @@ class Nodes:
         co_real = 0
         co_unintsort = 0
         co_bv = 0
+        co_arr = 0
         for key in self.dict:
             print('; number {} created: {}'.format(key, self.dict[key]))
 
@@ -1061,21 +1062,26 @@ class Nodes:
                 co_unintsort += self.dict[key]
             if type(key) is BV:
                 co_bv += self.dict[key]
+            if type(key) is Arr:
+                co_arr += self.dict[key]
 
         count_bool = 0
         count_int = 0
         count_real = 0
         count_unintsort = 0
         count_bv = 0
+        count_arr = 0
 
         thl_int = 0
         thl_real = 0
         thl_usort = 0
         thl_bv = 0
+        thl_arr = 0
         c_thl_int = 0
         c_thl_real = 0
         c_thl_usort = 0
         c_thl_bv = 0
+        c_thl_arr = 0
 
         for key in self.count:
             if type(key) is Var_Bool or type(key) is Bool_Op: 
@@ -1100,15 +1106,22 @@ class Nodes:
                 if type(key) is BV_Op:
                     thl_bv += 1
                     c_thl_bv += self.count[key]
+            if type(key) is Var_Arr or type(key) is Arr_Op:
+                count_arr += self.count[key]
+                if type(key) is Arr_Op:
+                    thl_arr += 1
+                    c_thl_arr += self.count[key]
         print('; variables and nodes of boolean sort were used {} times where {} were created'.format(count_bool, co_bool))
         print('; variables and nodes of integer sort were used {} times where {} were created'.format(count_int, co_int))
         print('; variables and nodes of real sort were used {} times where {} were created'.format(count_real, co_real))
         print('; variables and nodes of uninterpreted sort were used {} times where {} were created'.format(count_unintsort, co_unintsort))
         print('; variables and nodes of bit vector sort were used {} times where {} were created'.format(count_bv, co_bv))
+        print('; variables and nodes of array sort were used {} times where {} were created'.format(count_arr, co_arr))
         print('; {} integer theory literals used {} times'.format(thl_int, c_thl_int))
         print('; {} real theory literals used {} times'.format(thl_real, c_thl_real))
         print('; {} usort theory literals used {} times'.format(thl_usort, c_thl_usort))
         print('; {} bit vector theory literals used {} times'.format(thl_bv, c_thl_bv))
+        print('; {} array theory literals used {} times'.format(thl_arr, c_thl_arr))
 
         for key in self.count:
             print('; {} nodes created using {}'.format(self.count[key], key))
