@@ -192,7 +192,7 @@ class Arr(Sort):
         self.sort_element = sort_element
 
     def __repr__(self):
-        return '{}-{}_{}'.format(self.sort, self.sort_index, self.sort_element)
+        return '(_Array {} {})'.format(self.sort_index, self.sort_element)
 
     def __eq__(self, other):
         return isinstance(other, Arr) and self.sort_index == other.sort_index and self.sort_element == other.sort_element
@@ -902,25 +902,51 @@ class Nodes:
             self.count[new_bool] = 0
             self.dict[Bool()] += 1
 
-    def new_array(self):
-        ops = []
-        for o in list(self.d):
-            if type(o) is not Arr:
-                ops.append(o)
-            if type(o) is Arr:
-                if len(self.d[o]) > 0:
+    def new_array(self, logic):
+        if logic == 'ALL' or logic == 'QF_AX':
+            ops = []
+            for o in list(self.d):
+                if type(o) is not Arr:
                     ops.append(o)
-        isort = random.choice(ops)
-        esort = random.choice(ops)
-        arrsort = Arr(isort, esort)
-        self.d[arrsort] = []
-        self.dict[arrsort] = 0
-        n = len(self.d[arrsort])
-        new_arr = Var_Arr(isort, esort, n)
-        print('(declare-const {} {})'.format(new_arr, arrsort))
-        self.d[arrsort].append(new_arr)
-        self.count[new_arr] = 0
-        self.dict[arrsort] += 1   
+                if type(o) is Arr:
+                    if len(self.d[o]) > 0:
+                        ops.append(o)
+            isort = random.choice(ops)
+            esort = random.choice(ops)
+            arrsort = Arr(isort, esort)
+            if arrsort not in list(self.d):
+                self.d[arrsort] = []
+                self.dict[arrsort] = 0
+            n = len(self.d[arrsort])
+            new_arr = Var_Arr(isort, esort, n)
+            print('(declare-const {} {})'.format(new_arr, arrsort))
+            self.d[arrsort].append(new_arr)
+            self.count[new_arr] = 0
+            self.dict[arrsort] += 1   
+        if logic == 'QF_ABV' or logic == 'QF_AUFBV':
+            ops = []
+            for o in list(self.d):
+                if type(o) is not Arr:
+                    ops.append(o)
+                if type(o) is Arr:
+                    if len(self.d[o]) > 0:
+                        ops.append(o)
+            i_ops = []
+            for o in list(self.d):
+                if type(o) is BV and len(self.d[o]) > 0:
+                    i_ops.append(o)
+            isort = random.choice(i_ops)
+            esort = random.choice(ops)
+            arrsort = Arr(isort, esort)
+            if arrsort not in list(self.d):
+                self.d[arrsort] = []
+                self.dict[arrsort] = 0
+            n = len(self.d[arrsort])
+            new_arr = Var_Arr(isort, esort, n)
+            print('(declare-const {} {})'.format(new_arr, arrsort))
+            self.d[arrsort].append(new_arr)
+            self.count[new_arr] = 0
+            self.dict[arrsort] += 1   
 
     def array_from_array(self):
         ops = []
@@ -1200,7 +1226,7 @@ def bool_fuzz(logic, want_stats):
         if random.random() < u:
             nodes.bool_from_BV()
         if random.random() < gen_arr:
-            nodes.new_array()
+            nodes.new_array(logic)
         if random.random() < gen_arr:
             nodes.array_from_array()
         if random.random() < gen_arr:
@@ -1276,7 +1302,7 @@ def cnf_fuzz(logic, vcratio):
         if random.random() < 0.33:
             nodes.bool_from_bool()
         if random.random() < gen_arr:
-            nodes.new_array()
+            nodes.new_array(logic)
         if random.random() < gen_arr:
             nodes.array_from_array()
         if random.random() < gen_arr:
@@ -1343,7 +1369,7 @@ def ncnf_fuzz(logic, vcratio):
         if random.random() < 0.33:
             nodes.bool_from_bool()
         if random.random() < gen_arr:
-            nodes.new_array()
+            nodes.new_array(logic)
         if random.random() < gen_arr:
             nodes.array_from_array()
         if random.random() < gen_arr:
@@ -1410,7 +1436,7 @@ def CNFexp_fuzz(logic, vcratio):
         if random.random() < 0.33:
             nodes.bool_from_bool()
         if random.random() < gen_arr:
-            nodes.new_array()
+            nodes.new_array(logic)
         if random.random() < gen_arr:
             nodes.array_from_array()
         if random.random() < gen_arr:
