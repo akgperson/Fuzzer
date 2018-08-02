@@ -247,17 +247,22 @@ def find(s, ch):
 def replace_idx(s, index, replacement):
     return '{}{}{}'.format(s[:index], replacement, s[index+1:])
 
-def set_options():
-    tf = ['true', 'false']
-    print('(set-option :incremental true)')
-    print('(set-option :check-models true)')
-    print('(set-option :check-unsat-cores true)')
-    l = random.randint(0, len(boolean_solver_options))
-    to_set = random.sample(boolean_solver_options, l)
-    for i in to_set:
-        print('(set-option :{} {})'.format(i, random.choice(tf)))
+def set_options(option_fuzzing):
+    if option_fuzzing == 1:
+        tf = ['true', 'false']
+        print('(set-option :incremental true)')
+        print('(set-option :check-models true)')
+        print('(set-option :check-unsat-cores true)')
+        l = random.randint(0, len(boolean_solver_options))
+        to_set = random.sample(boolean_solver_options, l)
+        for i in to_set:
+            print('(set-option :{} {})'.format(i, random.choice(tf)))
+    if option_fuzzing == 0:
+        print('(set-option :incremental true)')
+        print('(set-option :check-models true)')
+        print('(set-option :check-unsat-cores true)')
 
-def set_logic(logic):
+def set_logic(logic, option_fuzzing):
     a=0.33 #newSort
     b=0.66 #varUSort
     c=1 #bool_from_usort
@@ -284,73 +289,73 @@ def set_logic(logic):
 
     if logic_choice == 'ALL':
         print('(set-logic ALL)')
-        set_options()
+        set_options(option_fuzzing)
         add_reals = 1
         add_ints = 1
 
     elif logic_choice == 'QF_ABV':
         print('(set-logic QF_ABV)')
-        set_options()
+        set_options(option_fuzzing)
         a, b, c, ni, e, f, g, h, m, v, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 
 
     elif logic_choice == 'QF_BV':
         print('(set-logic QF_BV)')
-        set_options()
+        set_options(option_fuzzing)
         a, b, c, ni, e, f, g, h, m, v, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
 
     elif logic_choice == 'QF_AUFBV':
         print('(set-logic QF_AUFBV)')
-        set_options()
+        set_options(option_fuzzing)
         ni, e, f, g, h, m, v, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1
 
     elif logic_choice == 'QF_NIA':
         print('(set-logic QF_NIA)')
-        set_options()
+        set_options(option_fuzzing)
         a, b, c, g, h, m, v, r, t, u, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
         add_ints = 1
 
     elif logic_choice == 'QF_NRA':
         print('(set-logic QF_NRA)')
-        set_options()
+        set_options(option_fuzzing)
         a, b, c, ni, e, f, v, r, t, u, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
         add_reals = 1
 
     elif logic_choice == 'QF_UF':
         print('(set-logic QF_UF)')
-        set_options()
+        set_options(option_fuzzing)
         ni, e, f, g, h, m, v, r, t, u, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
 
     elif logic_choice == 'QF_UFBV':
         print('(set-logic QF_UFBV)')
-        set_options()
+        set_options(option_fuzzing)
         ni, e, f, g, h, m, v, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1
 
     elif logic_choice == 'QF_UFNRA':
         print('(set-logic QF_UFNRA)')
-        set_options()
+        set_options(option_fuzzing)
         ni, e, f, v, r, t, u, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1
         add_reals = 1
 
     elif logic_choice == 'QF_UFNIA':
         print('(set-logic QF_UFNIA)')
-        set_options()
+        set_options(option_fuzzing)
         g, h, m, v, r, t, u, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1
         add_ints = 1
 
     elif logic_choice == 'QF_AX':
         print('(set-logic QF_AX)')
-        set_options()
+        set_options(option_fuzzing)
         add_reals = 1
         add_ints = 1
 
     elif logic_choice == 'QF_ABV':
         print('(set-logic QF_AX)')
-        set_options()
+        set_options(option_fuzzing)
         a, b, c, ni, e, f, g, h, m, v = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
 
     elif logic_choice == 'QF_AUFBV':
         print('(set-logic QF_AX)')
-        set_options()
+        set_options(option_fuzzing)
         ni, e, f, g, h, m, v = -1, -1, -1, -1, -1, -1, -1
 
     return a, b, c, ni, e, f, g, h, m, v, r, t, u, gen_arr, add_ints, add_reals
@@ -1182,11 +1187,11 @@ boolean_solver_options = ['arith-no-partial-fun', 'arith-rewrite-equalities', 'c
 boolean_solver_options += ['fmf-bound', 'fmf-bound-int', 'fmf-bound-lazy', 'fmf-empty-sorts', 'fmf-fmc-simple', 'fmf-fresh-dc', 'fmf-fun', 'fmf-fun-rlv', 'fmf-inst-engine', 'fmf-inst-gen', 'fmf-inst-gen-one-quant-per-round', 'fs-interleave', 'full-saturate-quant', 'full-saturate-quant-rd', 'global-negate', 'ho-matching', 'ho-matching-var-priority', 'ho-merge-term-db', 'increment-triggers', 'infer-arith-trigger-eq', 'infer-arith-trigger-eq-exp', 'inst-level-input-only', 'inst-no-entail', 'inst-no-model-true', 'inst-prop', 'inst-when-strict-interleave', 'inst-when-tc-first', 'int-wf-ind', 'ite-dtt-split-quant', 'local-t-ext', 'lte-partial-inst', 'lte-restrict-inst-closure', 'macros-quant', 'mbqi-interleave', 'mbqi-one-inst-per-round', 'mbqi-one-quant-per-round', 'min-synth-sol', 'miniscope-quant', 'miniscope-quant-fv', 'multi-trigger-cache', 'multi-trigger-linear', 'multi-trigger-priority', 'multi-trigger-when-single', 'partial-triggers', 'pre-skolem-quant', 'pre-skolem-quant-agg', 'pre-skolem-quant-nested', 'prenex-quant-user', 'pure-th-triggers', 'purify-dt-triggers', 'purify-triggers', 'qcf-all-conflict', 'qcf-eager-check-rd', 'qcf-eager-test', 'qcf-nested-conflict', 'qcf-skip-rd', 'qcf-tconstraint', 'qcf-vo-exp', 'quant-alpha-equiv', 'quant-anti-skolem', 'quant-cf', 'quant-epr', 'quant-epr-match', 'quant-fun-wd', 'quant-ind', 'quant-model-ee', 'quant-split', 'register-quant-body-terms', 'relational-triggers', 'relevant-triggers', 'rewrite-rules', 'rr-one-inst-per-round', 'strict-triggers', 'sygus-add-const-grammar', 'sygus-auto-unfold', 'sygus-bool-ite-return-const', 'sygus-crepair-abort', 'sygus-eval-opt', 'sygus-eval-unfold', 'sygus-eval-unfold-bool', 'sygus-ext-rew', 'sygus-grammar-norm', 'sygus-inference', 'sygus-inv-templ-when-sg', 'sygus-min-grammar', 'sygus-pbe', 'sygus-pbe-multi-fair', 'sygus-qe-preproc', 'sygus-ref-eval', 'sygus-repair-const', 'sygus-rr', 'sygus-rr-synth', 'sygus-rr-synth-accel', 'sygus-rr-synth-check', 'sygus-rr-synth-filter-cong', 'sygus-rr-synth-filter-match', 'sygus-rr-synth-filter-order', 'sygus-rr-verify', 'sygus-rr-verify-abort', 'sygus-sample-fp-uniform', 'sygus-sample-grammar', 'sygus-stream', 'sygus-templ-embed-grammar', 'sygus-unif', 'sygus-verify-subcall', 'track-inst-lemmas', 'var-elim-quant', 'var-ineq-elim-quant', 'sep-check-neg', 'sep-child-refine', 'sep-deq-c', 'sep-exp', 'sep-min-refine', 'sep-pre-skolem-emp', 'sets-ext', 'sets-infer-as-lemmas', 'sets-proxy-lemmas', 'sets-rel-eager', 'abstract-values', 'check-models', 'check-proofs', 'check-synth-sol', 'check-unsat-cores', 'cpu-time', 'dump-instantiations', 'dump-models', 'dump-proofs', 'dump-synth', 'dump-unsat-cores', 'dump-unsat-cores-full', 'ext-rew-prep', 'ext-rew-prep-agg', 'force-no-limit-cpu-while-dump', 'hard-limit', 'incremental', 'ite-simp', 'model-u-dt-enum', 'omit-dont-cares', 'on-repeat-ite-simp', 'produce-assertions', 'produce-assignments', 'produce-models', 'produce-unsat-assumptions', 'produce-unsat-cores', 'proof', 'repeat-simp']
 boolean_solver_options += ['rewrite-apply-to-const', 'simp-ite-compress', 'simp-with-care', 'solve-real-as-int=N', 'sort-inference', 'static-learning', 'sygus-print-callbacks', 'symmetry-breaker-exp', 'synth-rr-prep', 'synth-rr-prep-ext-rew', 'unconstrained-simp', 'strings-abort-loop', 'strings-binary-csp', 'strings-check-entail-len', 'strings-eager', 'strings-eager-len', 'strings-eit', 'strings-exp', 'strings-fmf', 'strings-guess-model', 'strings-infer-as-lemmas', 'strings-infer-sym', 'strings-inm', 'strings-lazy-pp', 'strings-len-geqz', 'strings-len-norm', 'strings-lprop-csp', 'strings-min-prefix-explain', 'strings-print-ascii', 'strings-process-loop', 'strings-rexplain-lemmas', 'strings-sp-emp', 'strings-uf-reduct', 'assign-function-values', 'condense-function-values', 'symmetry-breaker', 'uf-ho', 'uf-ho-ext', 'uf-ss-clique-splits', 'uf-ss-eager-split', 'uf-ss-fair', 'uf-ss-fair-monotone', 'uf-ss-regions', 'uf-ss-totality', 'uf-ss-totality-sym-break', 'solve-real-as-int'] 
 
-def bool_fuzz(logic, want_stats):
+def bool_fuzz(logic, want_stats, option_fuzzing):
     n_push = 0
     n_pop = 0
 
-    a, b, c, ni, e, f, g, h, m, v, r, t, u, gen_arr, add_ints, add_reals = set_logic(logic)
+    a, b, c, ni, e, f, g, h, m, v, r, t, u, gen_arr, add_ints, add_reals = set_logic(logic, option_fuzzing)
     nodes = Nodes(add_ints, add_reals)
 
     assertions = random.randrange(0, 100)
@@ -1257,11 +1262,11 @@ def bool_fuzz(logic, want_stats):
     if want_stats == 1:
         nodes.boolean_stats()
 
-def cnf_fuzz(logic, vcratio):
+def cnf_fuzz(logic, vcratio, option_fuzzing):
     n_push = 0
     n_pop = 0
 
-    a, b, c, ni, e, f, g, h, m, v, r, t, u, gen_arr, add_ints, add_reals = set_logic(logic)
+    a, b, c, ni, e, f, g, h, m, v, r, t, u, gen_arr, add_ints, add_reals = set_logic(logic, option_fuzzing)
     nodes = Nodes(add_ints, add_reals)
 
     for i in range(200):
@@ -1324,11 +1329,11 @@ def cnf_fuzz(logic, vcratio):
     clauses = Clauses(bank, n_clauses)
     clauses.new_cnfs()
 
-def ncnf_fuzz(logic, vcratio):
+def ncnf_fuzz(logic, vcratio, option_fuzzing):
     n_push = 0
     n_pop = 0
 
-    a, b, c, ni, e, f, g, h, m, v, r, t, u, gen_arr, add_ints, add_reals = set_logic(logic)
+    a, b, c, ni, e, f, g, h, m, v, r, t, u, gen_arr, add_ints, add_reals = set_logic(logic, option_fuzzing)
     nodes = Nodes(add_ints, add_reals)
 
     for i in range(200):
@@ -1391,11 +1396,11 @@ def ncnf_fuzz(logic, vcratio):
     clauses = Clauses(bank, n_clauses)
     clauses.new_dist_cnfs()
 
-def CNFexp_fuzz(logic, vcratio):
+def CNFexp_fuzz(logic, vcratio, option_fuzzing):
     n_push = 0
     n_pop = 0
 
-    a, b, c, ni, e, f, g, h, m, v, r, t, u, gen_arr, add_ints, add_reals = set_logic(logic)
+    a, b, c, ni, e, f, g, h, m, v, r, t, u, gen_arr, add_ints, add_reals = set_logic(logic, option_fuzzing)
     nodes = Nodes(add_ints, add_reals)
 
     for i in range(200):
@@ -1485,7 +1490,12 @@ parser.add_argument('--logic', dest='logic', default='random', type=str)
 parser.add_argument('--seed', dest='seed', default=None)
 parser.add_argument('--stats', action='store_true')
 parser.add_argument('--cnfratio', dest='ratio', default=5, type=int)
+parser.add_argument('--disable', dest='disable', default='none', type=str)
 args = parser.parse_args()
+
+option_fuzzing = 1
+if args.disable == 'option_fuzzing':
+    option_fuzzing = 0
 
 if args.seed != None:
     random.seed(args.seed)
@@ -1495,13 +1505,13 @@ if args.stats == True:
     want_stats = 1
 
 if args.strategy == 'bool':
-    bool_fuzz(args.logic, want_stats)
+    bool_fuzz(args.logic, want_stats, option_fuzzing)
 if args.strategy == 'cnf':
-    cnf_fuzz(args.logic, args.ratio)
+    cnf_fuzz(args.logic, args.ratio, option_fuzzing)
 if args.strategy == 'ncnf':
-    ncnf_fuzz(args.logic, args.ratio)
+    ncnf_fuzz(args.logic, args.ratio, option_fuzzing)
 if args.strategy == 'CNFexp':
-    CNFexp_fuzz(args.logic, args.ratio)
+    CNFexp_fuzz(args.logic, args.ratio, option_fuzzing)
 
 print("(check-sat)")
 print("(exit)")
