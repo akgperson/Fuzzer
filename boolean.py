@@ -275,7 +275,7 @@ def set_logic(logic):
     add_reals = 0
     add_ints = 0
 
-    logic_options = ['ALL', 'QF_ABV', 'QF_BV', 'QF_AUFBV', 'QF_NIA', 'QF_NRA', 'QF_UF', 'QF_UFNRA', 'QF_UFNIA', 'QF_UFBV', 'QF_AX']
+    logic_options = ['ALL', 'QF_ABV', 'QF_BV', 'QF_AUFBV', 'QF_NIA', 'QF_NRA', 'QF_UF', 'QF_UFNRA', 'QF_UFNIA', 'QF_UFBV', 'QF_AX', 'QF_ABV', 'QF_AUFBV']
     
     if logic == 'random':
         logic_choice = random.choice(logic_options)
@@ -342,6 +342,16 @@ def set_logic(logic):
         set_options()
         add_reals = 1
         add_ints = 1
+
+    elif logic_choice == 'QF_ABV':
+        print('(set-logic QF_AX)')
+        set_options()
+        a, b, c, ni, e, f, g, h, m, v = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+
+    elif logic_choice == 'QF_AUFBV':
+        print('(set-logic QF_AX)')
+        set_options()
+        ni, e, f, g, h, m, v = -1, -1, -1, -1, -1, -1, -1
 
     return a, b, c, ni, e, f, g, h, m, v, r, t, u, gen_arr, add_ints, add_reals
 
