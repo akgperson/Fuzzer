@@ -120,6 +120,16 @@ class Var_Arr(Var):
     def __hash__(self):
         return hash((self.sort, self.sort_element, self.n))
 
+class Var_Quant(Var):
+    def __init__(self, n):
+        Var.__init__(self, 'q', n)
+
+    def __eq__(self, other):
+        return isinstance(other, Var_Quant) and self.n == other.n
+
+    def __hash__(self):
+        return hash((self.sort, self.n))
+
 class Sort:
     def __init__(self, sort):
         self.sort = sort        
@@ -468,6 +478,9 @@ class Nodes:
         self.d[Bool()] = []
         self.d[Int()] = []
         self.d[Real()] = []
+    
+        self.nq = 0
+        self.qdict = OrderedDict()
 
         #dictionary of number of all nodes ever created
         self.dict = OrderedDict()
@@ -537,6 +550,59 @@ class Nodes:
             j = self.indices[-1][list(self.d).index(key)]
             del self.d[key][j:]
         self.indices.pop()
+
+    def quantifier(self):
+        p = random.random()
+        if p < 0.2: #forall, exists
+            sorted_var = '('
+            n = random.randint(0, 3)
+            for i in range(n):
+                ovar = Var_Quant(self.nq)
+                self.nq += 1
+                osort = random.choice(list(self.d))
+                if osort not in self.qdict:
+                    self.qdict[osort] = []
+                self.qdict[osort].append(ovar)
+                osv = '({} {}) '.format(ovar, osort)
+                sorted_var += osv
+            ovar = Var_Quant(self.nq)
+            self.nq += 1
+            osort = random.choice(list(self.d))
+            if osort not in self.qdict:
+                selfqdict[osort] = []
+            self.qdict[osort].append(ovar)
+            osv = '({} {}))'.format(ovar, osort)
+            sorted_var += osv
+
+            term = qterm()
+                #build boolean expression that uses variables from sorted_var
+                #use sorts and variables stored in qdict to create the right type of boolean expressions with the qvariables
+                #when bool_from_*sort*, have it choose from qdict or self.d when getting variables
+
+            if random.random() < 0.5:
+                statement = '(assert (forall {} {})'.format(sorted_var, term)
+            else:
+                statement = '(assert (exists {} {})'.format(sorted_var, term)
+#        elif p < 0.6: #let
+        print(statement)
+        self.qdict.clear()
+
+    def qterm(self):
+        qkeys = list(self.qdict)
+        nsam = random.randint(0, len(self.qdict.keys()))
+        qkeys = random.sample(qkeys, nsam)
+        if nsam == 0:
+            term = random.choice(self.d[Bool()])
+        boolean_subexpressions = ""
+        for i in qkeys:
+            if type(i) is Bool:
+                subexp = 
+            if type(i) is Int:
+            if type(i) is Real:
+            if type(i) is BV:
+            if type(i) is Arr:
+            if type(i) is UnIntSort:
+            boolean_subexpressions += str(subexp)
 
     def newSort(self):
         n_unintsorts = 0
