@@ -575,9 +575,6 @@ class Nodes:
             sorted_var += osv
 
             term = qterm()
-                #build boolean expression that uses variables from sorted_var
-                #use sorts and variables stored in qdict to create the right type of boolean expressions with the qvariables
-                #when bool_from_*sort*, have it choose from qdict or self.d when getting variables
 
             if random.random() < 0.5:
                 statement = '(assert (forall {} {})'.format(sorted_var, term)
@@ -595,14 +592,71 @@ class Nodes:
             term = random.choice(self.d[Bool()])
         boolean_subexpressions = ""
         for i in qkeys:
-            if type(i) is Bool:
-                subexp = 
-            if type(i) is Int:
-            if type(i) is Real:
-            if type(i) is BV:
-            if type(i) is Arr:
-            if type(i) is UnIntSort:
-            boolean_subexpressions += str(subexp)
+            subexpr = qsubexpression(i)
+            boolean_subexpressions += (str(subexpr) + " ")
+        boolean_subexpressions = boolean_subexpressions[:-1]
+        if nsam == 1: #unary
+            term = '({} {})'.format(random.choice(UnOp), boolean_subexpressions)
+        if nsam == 2: #binary
+            term = '({} {})'.format(random.choice(BiOp), boolean_subexpressions)
+        if nsam > 2: #n-array
+            term = '({} {})'.format(random.choice(NarOp), boolean_subexpressions)
+        return term
+
+    def qsubexpression(self, sort):
+        if type(sort) is Bool:
+            p = random.randint(1, 7)
+            q_bool_options = []
+            for t in self.qdict:
+                if type(t) is Bool:
+                    q_bool_options += self.qdict[t]
+            if p == 1:
+                if random.random() < 0.5:
+                    par = random.choice(q_bool_options)
+                else:
+                    par = random.choice(self.d[Bool()])
+                subexpr = Bool_Op(random.choice(UnOp), par)
+            elif p == 2:
+                #pick Binary
+                operand = ""
+                if random.random() < 0.5:
+                    par1 = random.choice(q_bool_options)
+                else:
+                    par1 = random.choice(self.d[Bool()])
+                if random.random() < 0.5:
+                    par2 = random.choice(q_bool_options)
+                else:
+                    par2 = random.choice(self.d[Bool()])
+                operand = str(par1)
+                operand += (" " + str(par2))
+                subexpr = Bool_Op(random.choice(BiOp), operand)
+            else:    
+                n_operands = random.randint(1, 10)
+                operands = ""
+                if random.random() < 0.5:
+                    par = random.choice(q_bool_options)
+                else:
+                    par = random.choice(self.d[Bool()])
+                operands = str(par)
+                for i in range(n_operands):
+                    if random.random() < 0.5:
+                        par = random.choice(q_bool_options)
+                    else:
+                        par = random.choice(self.d[Bool()])
+                    operands += (" " + str(par))
+                subexpr = Bool_Op(random.choice(NarOp), operands)
+
+        if type(sort) is Int:
+
+        if type(sort) is Real:
+
+        if type(sort) is BV:
+
+        if type(sort) is Arr:
+
+        if type(sort) is UnIntSort:
+
+        return subexpr
 
     def newSort(self):
         n_unintsorts = 0
