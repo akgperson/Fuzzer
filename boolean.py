@@ -289,8 +289,9 @@ def set_logic(logic, option_fuzzing):
     gen_arr=0.33 #arrays of any sort
     add_reals = 0
     add_ints = 0
+    add_quantifiers = -1
 
-    logic_options = ['ALL', 'QF_ABV', 'QF_BV', 'QF_AUFBV', 'QF_NIA', 'QF_NRA', 'QF_UF', 'QF_UFNRA', 'QF_UFNIA', 'QF_UFBV', 'QF_AX', 'QF_ABV', 'QF_AUFBV']
+    logic_options = ['ALL', 'QF_ABV', 'QF_BV', 'QF_AUFBV', 'QF_NIA', 'QF_NRA', 'QF_UF', 'QF_UFNRA', 'QF_UFNIA', 'QF_UFBV', 'QF_AX', 'QF_ABV', 'QF_AUFBV', 'ABV', 'BV', 'AUFBV', 'NIA', 'NRA', 'UF', 'UFNRA', 'UFNIA', 'UFBV', 'AX', 'ABV', 'AUFBV']
     
     if logic == 'random':
         logic_choice = random.choice(logic_options)
@@ -302,6 +303,8 @@ def set_logic(logic, option_fuzzing):
         set_options(option_fuzzing)
         add_reals = 1
         add_ints = 1
+        add_quantifiers = 0.5
+#        add_quantifiers = 0.05
 
     elif logic_choice == 'QF_ABV':
         print('(set-logic QF_ABV)')
@@ -359,16 +362,105 @@ def set_logic(logic, option_fuzzing):
         add_ints = 1
 
     elif logic_choice == 'QF_ABV':
-        print('(set-logic QF_AX)')
+        print('(set-logic QF_ABV)')
         set_options(option_fuzzing)
         a, b, c, ni, e, f, g, h, m, v = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
 
     elif logic_choice == 'QF_AUFBV':
-        print('(set-logic QF_AX)')
+        print('(set-logic QF_AUFBV)')
         set_options(option_fuzzing)
         ni, e, f, g, h, m, v = -1, -1, -1, -1, -1, -1, -1
 
-    return a, b, c, ni, e, f, g, h, m, v, r, t, u, gen_arr, add_ints, add_reals
+    elif logic_choice == 'ABV':
+        print('(set-logic ABV)')
+        set_options(option_fuzzing)
+        a, b, c, ni, e, f, g, h, m, v, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 
+        add_quantifiers = 0.5
+#        add_quantifiers = 0.05
+
+    elif logic_choice == 'BV':
+        print('(set-logic BV)')
+        set_options(option_fuzzing)
+        a, b, c, ni, e, f, g, h, m, v, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+        add_quantifiers = 0.5
+#        add_quantifiers = 0.05
+
+    elif logic_choice == 'AUFBV':
+        print('(set-logic AUFBV)')
+        set_options(option_fuzzing)
+        ni, e, f, g, h, m, v, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1
+        add_quantifiers = 0.5
+#        add_quantifiers = 0.05
+
+    elif logic_choice == 'NIA':
+        print('(set-logic NIA)')
+        set_options(option_fuzzing)
+        a, b, c, g, h, m, v, r, t, u, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+        add_ints = 1
+        add_quantifiers = 0.5
+#        add_quantifiers = 0.05
+
+    elif logic_choice == 'NRA':
+        print('(set-logic NRA)')
+        set_options(option_fuzzing)
+        a, b, c, ni, e, f, v, r, t, u, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+        add_reals = 1
+        add_quantifiers = 0.5
+#        add_quantifiers = 0.05
+
+    elif logic_choice == 'UF':
+        print('(set-logic UF)')
+        set_options(option_fuzzing)
+        ni, e, f, g, h, m, v, r, t, u, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+        add_quantifiers = 0.5
+#        add_quantifiers = 0.05
+
+    elif logic_choice == 'UFBV':
+        print('(set-logic UFBV)')
+        set_options(option_fuzzing)
+        ni, e, f, g, h, m, v, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1
+        add_quantifiers = 0.5
+#        add_quantifiers = 0.05
+
+    elif logic_choice == 'UFNRA':
+        print('(set-logic UFNRA)')
+        set_options(option_fuzzing)
+        ni, e, f, v, r, t, u, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1
+        add_reals = 1
+        add_quantifiers = 0.5
+#        add_quantifiers = 0.05
+
+    elif logic_choice == 'UFNIA':
+        print('(set-logic UFNIA)')
+        set_options(option_fuzzing)
+        g, h, m, v, r, t, u, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1
+        add_ints = 1
+        add_quantifiers = 0.5
+#        add_quantifiers = 0.05
+
+    elif logic_choice == 'AX':
+        print('(set-logic AX)')
+        set_options(option_fuzzing)
+        add_reals = 1
+        add_ints = 1
+        add_quantifiers = 0.5
+#        add_quantifiers = 0.05
+
+    elif logic_choice == 'ABV':
+        print('(set-logic ABV)')
+        set_options(option_fuzzing)
+        a, b, c, ni, e, f, g, h, m, v = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+        add_quantifiers = 0.5
+#        add_quantifiers = 0.05
+
+    elif logic_choice == 'AUFBV':
+        print('(set-logic AUFBV)')
+        set_options(option_fuzzing)
+        ni, e, f, g, h, m, v = -1, -1, -1, -1, -1, -1, -1
+        add_quantifiers = 0.5
+#        add_quantifiers = 0.05
+
+    return a, b, c, ni, e, f, g, h, m, v, r, t, u, gen_arr, add_ints, add_reals, add_quantifiers
 
 class Clauses():
     def __init__(self, b, nc):
@@ -476,8 +568,6 @@ class Nodes:
     def __init__(self, a_ints, a_reals):
         self.d = OrderedDict()
         self.d[Bool()] = []
-        self.d[Int()] = []
-        self.d[Real()] = []
     
         self.nq = 0
         self.qdict = OrderedDict()
@@ -506,6 +596,7 @@ class Nodes:
             self.dict[Bool()] += 1
             self.count[Var_Bool(i)] = 0
         if self.initial_ints == 1:
+            self.d[Int()] = []
             for i in range(self.n_ints):
                 if random.random() < 0.5:
                     self.d[Int()].append(Var_Int(i))
@@ -517,6 +608,7 @@ class Nodes:
                     self.count[val] = 0
                 self.dict[Int()] += 1
         if self.initial_reals == 1:
+            self.d[Real()] = []
             for i in range(self.n_reals):
                 if random.random() < 0.5:
                     self.d[Real()].append(Var_Real(i))
@@ -552,35 +644,32 @@ class Nodes:
         self.indices.pop()
 
     def quantifier(self):
-        p = random.random()
-        if p < 0.2: #forall, exists
-            sorted_var = '('
-            n = random.randint(0, 3)
-            for i in range(n):
-                ovar = Var_Quant(self.nq)
-                self.nq += 1
-                osort = random.choice(list(self.d))
-                if osort not in self.qdict:
-                    self.qdict[osort] = []
-                self.qdict[osort].append(ovar)
-                osv = '({} {}) '.format(ovar, osort)
-                sorted_var += osv
+        sorted_var = '('
+        n = random.randint(0, 3)
+        for i in range(n):
             ovar = Var_Quant(self.nq)
             self.nq += 1
             osort = random.choice(list(self.d))
             if osort not in self.qdict:
-                selfqdict[osort] = []
+                self.qdict[osort] = []
             self.qdict[osort].append(ovar)
-            osv = '({} {}))'.format(ovar, osort)
+            osv = '({} {}) '.format(ovar, osort)
             sorted_var += osv
+        ovar = Var_Quant(self.nq)
+        self.nq += 1
+        osort = random.choice(list(self.d))
+        if osort not in self.qdict:
+            self.qdict[osort] = []
+        self.qdict[osort].append(ovar)
+        osv = '({} {}))'.format(ovar, osort)
+        sorted_var += osv
 
-            term = qterm()
+        term = self.qterm()
 
-            if random.random() < 0.5:
-                statement = '(assert (forall {} {})'.format(sorted_var, term)
-            else:
-                statement = '(assert (exists {} {})'.format(sorted_var, term)
-#        elif p < 0.6: #let
+        if random.random() < 0.5:
+            statement = '(assert (forall {} {})'.format(sorted_var, term)
+        else:
+            statement = '(assert (exists {} {})'.format(sorted_var, term)
         print(statement)
         self.qdict.clear()
 
@@ -588,11 +677,15 @@ class Nodes:
         qkeys = list(self.qdict)
         nsam = random.randint(0, len(self.qdict.keys()))
         qkeys = random.sample(qkeys, nsam)
+############################
+        print(qkeys)
+        print(nsam)
+############################
         if nsam == 0:
             term = random.choice(self.d[Bool()])
         boolean_subexpressions = ""
         for i in qkeys:
-            subexpr = qsubexpression(i)
+            subexpr = self.qsubexpression(i)
             boolean_subexpressions += (str(subexpr) + " ")
         boolean_subexpressions = boolean_subexpressions[:-1]
         if nsam == 1: #unary
@@ -606,25 +699,20 @@ class Nodes:
     def qsubexpression(self, sort):
         if type(sort) is Bool:
             p = random.randint(1, 7)
-            q_bool_options = []
-            for t in self.qdict:
-                if type(t) is Bool:
-                    q_bool_options += self.qdict[t]
             if p == 1:
                 if random.random() < 0.5:
-                    par = random.choice(q_bool_options)
+                    par = random.choice(self.qdict[sort])
                 else:
                     par = random.choice(self.d[Bool()])
                 subexpr = Bool_Op(random.choice(UnOp), par)
             elif p == 2:
-                #pick Binary
                 operand = ""
                 if random.random() < 0.5:
-                    par1 = random.choice(q_bool_options)
+                    par1 = random.choice(self.qdict[sort])
                 else:
                     par1 = random.choice(self.d[Bool()])
                 if random.random() < 0.5:
-                    par2 = random.choice(q_bool_options)
+                    par2 = random.choice(self.qdict[sort])
                 else:
                     par2 = random.choice(self.d[Bool()])
                 operand = str(par1)
@@ -634,27 +722,121 @@ class Nodes:
                 n_operands = random.randint(1, 10)
                 operands = ""
                 if random.random() < 0.5:
-                    par = random.choice(q_bool_options)
+                    par = random.choice(self.qdict[sort])
                 else:
                     par = random.choice(self.d[Bool()])
                 operands = str(par)
                 for i in range(n_operands):
                     if random.random() < 0.5:
-                        par = random.choice(q_bool_options)
+                        par = random.choice(self.qdict[sort])
                     else:
                         par = random.choice(self.d[Bool()])
                     operands += (" " + str(par))
                 subexpr = Bool_Op(random.choice(NarOp), operands)
 
         if type(sort) is Int:
+            if random.random() < 0.5:
+                par = random.choice(self.d[Int()])
+            else:
+                par = random.choice(self.qdict[sort])
+            operand = str(par)
+            if random.random() < 0.5:
+                par = random.choice(self.d[Int()])
+            else:
+                par = random.choice(self.qdict[sort])
+            operand += (" " + str(par))
+            subexpr = Bool_Op(random.choice(IRNBoolOp), operand)
 
         if type(sort) is Real:
+            if random.random() < 0.5:
+                par = random.choice(self.d[Real()])
+            else:
+                par = random.choice(self.qdict[sort])
+            operands = str(par)
+            n_operands = random.randrange(1, 5)
+            for i in range(n_operands):
+                if random.random() < 0.5:
+                    par = random.choice(self.d[Real()])
+                else:
+                    par = random.choice(self.qdict[sort])
+                operands += (" " + str(par))
+            subexpr = Bool_Op(random.choice(IRNBoolOp), operands)
 
         if type(sort) is BV:
+            if random.random() < 0.33:
+                if random.random() < 0.5 and len(self.d[sort]) > 0:
+                    par1 = random.choice(self.d[sort])
+                else:
+                    par1 = random.choice(self.qdict[sort])
+                if random.random() < 0.5 and len(self.d[sort]) > 0:
+                    par2 = random.choice(self.d[sort])
+                else:
+                    par2 = random.choice(self.qdict[sort])
+                operand = str(par1) + " " + str(par2)
+                subexpr = Bool_Op(random.choice(Bin_BV_Bool), operand)
+            else:
+                if random.random() < 0.5 and len(self.d[sort]) > 0:
+                    par = random.choice(self.d[sort])
+                else:
+                    par = random.choice(self.qdict[sort])
+                operand = str(par)
+                n = random.randint(1, 4)
+                for i in range(n):
+                    if random.random() < 0.5 and len(self.d[sort]) > 0:
+                        par = random.choice(self.d[sort])
+                    else:
+                        par = random.choice(self.qdict[sort])
+                    operand += (" " + str(par))
+                subexpr = Bool_Op(random.choice(N_BV_Bool), operand)
 
         if type(sort) is Arr:
+            isort = sort.sort_index
+            if random.random() < 0.5 and isort in self.d.keys() and len(self.d[sort.sort_index]) > 0:
+                if random.random() < 0.5 and len(self.d[sort]) > 0:
+                    par = random.choice(self.d[sort])
+                else:
+                    par = random.choice(self.qdict[sort])
+                if random.random() < 0.5 and isort in self.qdict and len(self.qdict[isort]) > 0:
+                    par2 = random.choice(self.qdict[isort])
+                else:
+                    par2 = random.choice(self.d[isort])
+                expression = '{} {}'.format(par, par2)
+                subexpr = Bool_Op('select', expression)
+            else:
+                if random.random() < 0.5 and len(self.d[sort]) > 0:
+                    par = random.choice(self.d[sort])
+                else:
+                    par = random.choice(self.qdict[sort])
+                operand = str(par)
+                n = random.randint(1, 4)
+                for i in range(n):
+                    if random.random() < 0.5 and len(self.d[sort]) > 0:
+                        par = random.choice(self.d[sort])
+                    else:
+                        par = random.choice(self.qdict[sort])
+                    operand += (" " + str(par))
+                if random.random() < 0.5:
+                    subexpr = Bool_Op('=', operand)
+                else:
+                    subexpr = Bool_Op('distinct', operand)
 
         if type(sort) is UnIntSort:
+            n_items = random.randrange(1, 5)
+            if random.random() < 0.5 and len(self.d[sort]) > 0:
+                par = random.choice(self.d[sort])
+            else:
+                par = random.choice(self.qdict[sort])
+            items = str(par)
+            for i in range(n_items):
+                if random.random() < 0.5 and len(self.d[sort]) > 0:
+                    par = random.choice(self.d[sort])
+                else:
+                    par = random.choice(self.qdict[sort])
+                items += (" " + str(par))
+            if random.random() < 0.5:
+                subexpr = Bool_Op('=', items)
+            else:
+                subexpr = Bool_Op('distinct', items) 
 
         return subexpr
 
@@ -1311,7 +1493,7 @@ def bool_fuzz(logic, want_stats, option_fuzzing):
     n_push = 0
     n_pop = 0
 
-    a, b, c, ni, e, f, g, h, m, v, r, t, u, gen_arr, add_ints, add_reals = set_logic(logic, option_fuzzing)
+    a, b, c, ni, e, f, g, h, m, v, r, t, u, gen_arr, add_ints, add_reals, add_quantifiers = set_logic(logic, option_fuzzing)
     nodes = Nodes(add_ints, add_reals)
 
     assertions = random.randrange(0, 100)
@@ -1366,6 +1548,8 @@ def bool_fuzz(logic, want_stats, option_fuzzing):
             nodes.array_from_array()
         if random.random() < gen_arr:
             nodes.bool_from_array()
+        if random.random() < add_quantifiers:
+            nodes.quantifier()
 
         if random.random() < 0.5:
             new_node = nodes.bool_choice()    
@@ -1386,7 +1570,7 @@ def cnf_fuzz(logic, vcratio, option_fuzzing):
     n_push = 0
     n_pop = 0
 
-    a, b, c, ni, e, f, g, h, m, v, r, t, u, gen_arr, add_ints, add_reals = set_logic(logic, option_fuzzing)
+    a, b, c, ni, e, f, g, h, m, v, r, t, u, gen_arr, add_ints, add_reals, add_quantifiers = set_logic(logic, option_fuzzing)
     nodes = Nodes(add_ints, add_reals)
 
     for i in range(200):
@@ -1442,6 +1626,8 @@ def cnf_fuzz(logic, vcratio, option_fuzzing):
             nodes.array_from_array()
         if random.random() < gen_arr:
             nodes.bool_from_array()
+        if random.random() < add_quantifiers:
+            nodes.quantifier()
 
     upp_b = nodes.num_bool()
     n_variables, n_clauses = Ratio(1, upp_b, vcratio)
@@ -1453,7 +1639,7 @@ def ncnf_fuzz(logic, vcratio, option_fuzzing):
     n_push = 0
     n_pop = 0
 
-    a, b, c, ni, e, f, g, h, m, v, r, t, u, gen_arr, add_ints, add_reals = set_logic(logic, option_fuzzing)
+    a, b, c, ni, e, f, g, h, m, v, r, t, u, gen_arr, add_ints, add_reals, add_quantifiers = set_logic(logic, option_fuzzing)
     nodes = Nodes(add_ints, add_reals)
 
     for i in range(200):
@@ -1509,6 +1695,8 @@ def ncnf_fuzz(logic, vcratio, option_fuzzing):
             nodes.array_from_array()
         if random.random() < gen_arr:
             nodes.bool_from_array()
+        if random.random() < add_quantifiers:
+            nodes.quantifier()
 
     upp_b = nodes.num_bool()
     n_variables, n_clauses = Ratio(1, upp_b, vcratio)
@@ -1520,7 +1708,7 @@ def CNFexp_fuzz(logic, vcratio, option_fuzzing):
     n_push = 0
     n_pop = 0
 
-    a, b, c, ni, e, f, g, h, m, v, r, t, u, gen_arr, add_ints, add_reals = set_logic(logic, option_fuzzing)
+    a, b, c, ni, e, f, g, h, m, v, r, t, u, gen_arr, add_ints, add_reals, add_quantifiers = set_logic(logic, option_fuzzing)
     nodes = Nodes(add_ints, add_reals)
 
     for i in range(200):
@@ -1576,6 +1764,8 @@ def CNFexp_fuzz(logic, vcratio, option_fuzzing):
             nodes.array_from_array()
         if random.random() < gen_arr:
             nodes.bool_from_array()
+        if random.random() < add_quantifiers:
+            nodes.quantifier()
 
     upp_b = nodes.num_bool()
     n_variables, n_clauses = Ratio(1, upp_b, vcratio)
