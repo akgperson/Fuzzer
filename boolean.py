@@ -112,7 +112,7 @@ class Var_Arr(Var):
         self.sort_element = sort_element
 
     def __repr__(self):
-        return 'arr-{}_{}-{}'.format(self.sort, self.sort_element, self.n)
+        return 'arr-{}_{}-{}'.format(hash(self.sort), hash(self.sort_element), self.n)
 
     def __eq__(self, other):
         return isinstance(other, Var_Arr) and self.n == other.n and self.sort == other.sort and self.sort_element == other.sort_element
@@ -139,7 +139,7 @@ class Sort:
 
 class Bool(Sort):
     def __init__(self):
-        Sort.__init__(self, 'bool')
+        Sort.__init__(self, 'Bool')
 
     def __eq__(self, other):
         return isinstance(other, Bool)
@@ -149,7 +149,7 @@ class Bool(Sort):
 
 class Int(Sort):
     def __init__(self):
-        Sort.__init__(self, 'int')
+        Sort.__init__(self, 'Int')
 
     def __eq__(self, other):
         return isinstance(other, Int)
@@ -159,7 +159,7 @@ class Int(Sort):
         
 class Real(Sort):
     def __init__(self):
-        Sort.__init__(self, 'real')
+        Sort.__init__(self, 'Real')
 
     def __eq__(self, other):
         return isinstance(other, Real)
@@ -187,7 +187,7 @@ class BV(Sort):
         self.w = w
 
     def __repr__(self):
-        return str(self.sort) + str(self.w)
+        return '(_ BitVec {})'.format(self.w)
 
     def __eq__(self, other):
         return isinstance(other, BV) and self.w == other.w
@@ -677,10 +677,6 @@ class Nodes:
         qkeys = list(self.qdict)
         nsam = random.randint(0, len(self.qdict.keys()))
         qkeys = random.sample(qkeys, nsam)
-############################
-        print(qkeys)
-        print(nsam)
-############################
         if nsam == 0:
             term = random.choice(self.d[Bool()])
         boolean_subexpressions = ""
@@ -1047,7 +1043,7 @@ class Nodes:
                 self.d[bv_sort] = [] 
                 self.dict[bv_sort] = 0
             const = Var_BV(width, len(self.d[bv_sort])) 
-            print('(declare-const {} (_ BitVec {}))'.format(const, width))
+            print('(declare-const {} {})'.format(const, bv_sort))
             self.d[bv_sort].append(const) 
             self.count[const] = 0
             self.dict[bv_sort] += 1
