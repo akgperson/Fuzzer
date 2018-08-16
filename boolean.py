@@ -202,7 +202,7 @@ class Arr(Sort):
         self.sort_element = sort_element
 
     def __repr__(self):
-        return '(_Array {} {})'.format(self.sort_index, self.sort_element)
+        return '(Array {} {})'.format(self.sort_index, self.sort_element)
 
     def __eq__(self, other):
         return isinstance(other, Arr) and self.sort_index == other.sort_index and self.sort_element == other.sort_element
@@ -667,9 +667,9 @@ class Nodes:
         term = self.qterm()
 
         if random.random() < 0.5:
-            statement = '(assert (forall {} {})'.format(sorted_var, term)
+            statement = '(assert (forall {} {}))'.format(sorted_var, term)
         else:
-            statement = '(assert (exists {} {})'.format(sorted_var, term)
+            statement = '(assert (exists {} {}))'.format(sorted_var, term)
         print(statement)
         self.qdict.clear()
 
