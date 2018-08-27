@@ -303,8 +303,7 @@ def set_logic(logic, option_fuzzing):
         set_options(option_fuzzing)
         add_reals = 1
         add_ints = 1
-        add_quantifiers = 0.5
-#        add_quantifiers = 0.05
+        add_quantifiers = 0.05
 
     elif logic_choice == 'QF_ABV':
         print('(set-logic QF_ABV)')
@@ -375,90 +374,78 @@ def set_logic(logic, option_fuzzing):
         print('(set-logic ABV)')
         set_options(option_fuzzing)
         a, b, c, ni, e, f, g, h, m, v, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 
-        add_quantifiers = 0.5
-#        add_quantifiers = 0.05
+        add_quantifiers = 0.05
 
     elif logic_choice == 'BV':
         print('(set-logic BV)')
         set_options(option_fuzzing)
         a, b, c, ni, e, f, g, h, m, v, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
-        add_quantifiers = 0.5
-#        add_quantifiers = 0.05
+        add_quantifiers = 0.05
 
     elif logic_choice == 'AUFBV':
         print('(set-logic AUFBV)')
         set_options(option_fuzzing)
         ni, e, f, g, h, m, v, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1
-        add_quantifiers = 0.5
-#        add_quantifiers = 0.05
+        add_quantifiers = 0.05
 
     elif logic_choice == 'NIA':
         print('(set-logic NIA)')
         set_options(option_fuzzing)
         a, b, c, g, h, m, v, r, t, u, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
         add_ints = 1
-        add_quantifiers = 0.5
-#        add_quantifiers = 0.05
+        add_quantifiers = 0.05
 
     elif logic_choice == 'NRA':
         print('(set-logic NRA)')
         set_options(option_fuzzing)
         a, b, c, ni, e, f, v, r, t, u, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
         add_reals = 1
-        add_quantifiers = 0.5
-#        add_quantifiers = 0.05
+        add_quantifiers = 0.05
 
     elif logic_choice == 'UF':
         print('(set-logic UF)')
         set_options(option_fuzzing)
         ni, e, f, g, h, m, v, r, t, u, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
-        add_quantifiers = 0.5
-#        add_quantifiers = 0.05
+        add_quantifiers = 0.05
 
     elif logic_choice == 'UFBV':
         print('(set-logic UFBV)')
         set_options(option_fuzzing)
         ni, e, f, g, h, m, v, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1
-        add_quantifiers = 0.5
-#        add_quantifiers = 0.05
+        add_quantifiers = 0.05
 
     elif logic_choice == 'UFNRA':
         print('(set-logic UFNRA)')
         set_options(option_fuzzing)
         ni, e, f, v, r, t, u, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1
         add_reals = 1
-        add_quantifiers = 0.5
-#        add_quantifiers = 0.05
+        add_quantifiers = 0.05
 
     elif logic_choice == 'UFNIA':
         print('(set-logic UFNIA)')
         set_options(option_fuzzing)
         g, h, m, v, r, t, u, gen_arr = -1, -1, -1, -1, -1, -1, -1, -1
         add_ints = 1
-        add_quantifiers = 0.5
-#        add_quantifiers = 0.05
+        add_quantifiers = 0.05
 
     elif logic_choice == 'AX':
         print('(set-logic AX)')
         set_options(option_fuzzing)
         add_reals = 1
         add_ints = 1
-        add_quantifiers = 0.5
-#        add_quantifiers = 0.05
+        add_quantifiers = 0.05
 
     elif logic_choice == 'ABV':
         print('(set-logic ABV)')
         set_options(option_fuzzing)
         a, b, c, ni, e, f, g, h, m, v = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
-        add_quantifiers = 0.5
-#        add_quantifiers = 0.05
+        add_quantifiers = 0.05
 
     elif logic_choice == 'AUFBV':
         print('(set-logic AUFBV)')
         set_options(option_fuzzing)
         ni, e, f, g, h, m, v = -1, -1, -1, -1, -1, -1, -1
-        add_quantifiers = 0.5
-#        add_quantifiers = 0.05
+        add_quantifiers = 0.05
 
     return a, b, c, ni, e, f, g, h, m, v, r, t, u, gen_arr, add_ints, add_reals, add_quantifiers
 
@@ -1304,10 +1291,13 @@ class Nodes:
                 self.count[par] += 1
                 self.count[par2] += 1
                 expression = '{} {}'.format(par, par2)
-                new_bool = Bool_Op('select', expression)
-                self.d[Bool()].append(new_bool)
-                self.count[new_bool] = 0
-                self.dict[Bool()] += 1
+                new_one = Arr_Op('select', expression)
+                sssort = current_sort.sort_element
+                self.d[sssort].append(new_one)
+                self.count[new_one] = 0
+                if sssort not in self.dict.keys():
+                    self.dict[sssort] = 0
+                self.dict[sssort] += 1
         else:
             ops = []
             options = []
